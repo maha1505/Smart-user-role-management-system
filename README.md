@@ -23,8 +23,8 @@ Admin, Manager, Employee, HR and Accountant.
 ## Installation
 
 ### Clone the repository
-git clone https://github.com/yourusername/hr-role-management.git
-cd hr-role-management
+git clone [https://github.com/yourusername/hr-role-management.git](https://github.com/maha1505/Smart-user-role-management-system)
+cd smart-user-role-management
 
 ### Setup Backend
 cd server
