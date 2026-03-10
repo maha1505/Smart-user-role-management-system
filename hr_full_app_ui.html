@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HR Role Management — Full App UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #7d8590;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Manrope',sans-serif; background:var(--bg); color:var(--text); }
+
+/* ── TOP ROLE SWITCHER ── */
+.top-bar {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 20px; background:var(--surface);
+  border-bottom:1px solid var(--border); overflow-x:auto;
+}
+.top-bar span { font-size:10px; color:var(--muted); font-family:'Syne',sans-serif; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; margin-right:6px; }
+.role-btn { padding:5px 14px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--muted); font-family:'Manrope',sans-serif; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.role-btn[data-role="admin"].active    { background:#58a6ff; border-color:#58a6ff; color:#0d1117; }
+.role-btn[data-role="manager"].active  { background:#d97706; border-color:#d97706; color:#fff; }
+.role-btn[data-role="employee"].active { background:#10b981; border-color:#10b981; color:#fff; }
+.role-btn[data-role="hr"].active       { background:#f43f5e; border-color:#f43f5e; color:#fff; }
+.role-btn[data-role="accountant"].active { background:#8b5cf6; border-color:#8b5cf6; color:#fff; }
+
+/* ── LAYOUT ── */
+.app { display:flex; height:calc(100vh - 45px); }
+
+/* ── SIDEBAR ── */
+.sidebar { width:210px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:16px 0; overflow-y:auto; }
+.sidebar-logo { padding:0 16px 16px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+.logo-text { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; }
+.logo-sub { font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.sec-label { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:0 8px; margin:8px 0 4px; font-weight:600; }
+.nav-section { padding:0 10px; }
+.ni { display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:7px; font-size:12px; font-weight:500; color:var(--muted); cursor:pointer; transition:all 0.15s; margin-bottom:2px; }
+.ni:hover { background:var(--surface2); color:var(--text); }
+.ni.active { background:var(--surface2); color:var(--text); }
+.ni .ic { font-size:14px; width:18px; text-align:center; }
+.ni .bdg { margin-left:auto; background:#f43f5e; color:#fff; font-size:9px; font-weight:700; padding:2px 5px; border-radius:10px; }
+.sidebar-user { margin-top:auto; padding:12px 16px 0; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.uavatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+.uname { font-size:11px; font-weight:600; }
+.urole { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+/* ── MAIN ── */
+.main { flex:1; overflow-y:auto; background:var(--bg); display:flex; flex-direction:column; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 24px; border-bottom:1px solid var(--border); background:var(--bg); position:sticky; top:0; z-index:10; }
+.tbtitle { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; }
+.tbsub { font-size:11px; color:var(--muted); margin-top:1px; }
+.tbright { display:flex; align-items:center; gap:10px; }
+.searchbox { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:6px 12px; font-size:11px; color:var(--muted); width:160px; display:flex; align-items:center; gap:5px; }
+.iconbtn { width:32px; height:32px; border-radius:7px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; }
+
+/* ── CONTENT ── */
+.content { padding:20px 24px; flex:1; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* ── STATS ── */
+.sg { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.sg3 { grid-template-columns:repeat(3,1fr); }
+.sc { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px; position:relative; overflow:hidden; }
+.sc::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.sc.blue::before { background:linear-gradient(90deg,#58a6ff,#1f6feb); }
+.sc.green::before { background:linear-gradient(90deg,#3fb950,#238636); }
+.sc.orange::before { background:linear-gradient(90deg,#d29922,#b08800); }
+.sc.red::before { background:linear-gradient(90deg,#f85149,#da3633); }
+.sc.purple::before { background:linear-gradient(90deg,#a371f7,#8957e5); }
+.sc.teal::before { background:linear-gradient(90deg,#26c6da,#00acc1); }
+.slbl { font-size:10px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.sval { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; margin:4px 0 2px; }
+.schg { font-size:10px; color:var(--muted); }
+.schg.up { color:#3fb950; } .schg.dn { color:#f85149; }
+.sic { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:26px; opacity:0.12; }
+
+/* ── GRID LAYOUTS ── */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+.g3 { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:16px; }
+.g1 { margin-bottom:16px; }
+
+/* ── CARD ── */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.ch { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.ct { font-size:12px; font-weight:700; font-family:'Syne',sans-serif; }
+.ca { font-size:11px; color:#58a6ff; cursor:pointer; }
+.cb { padding:14px 16px; }
+
+/* ── TABLE ── */
+.tbl { width:100%; border-collapse:collapse; }
+.tbl th { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; padding:0 0 8px; text-align:left; border-bottom:1px solid var(--border); }
+.tbl td { padding:9px 0; font-size:12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.tbl tr:last-child td { border-bottom:none; }
+
+/* ── BADGES ── */
+.bdg { display:inline-block; padding:3px 8px; border-radius:10px; font-size:10px; font-weight:700; }
+.b-pending  { background:rgba(210,153,34,0.15); color:#e3b341; }
+.b-approved { background:rgba(63,185,80,0.15);  color:#3fb950; }
+.b-rejected { background:rgba(248,81,73,0.15);  color:#f85149; }
+.b-progress { background:rgba(88,166,255,0.15); color:#58a6ff; }
+.b-done     { background:rgba(63,185,80,0.15);  color:#3fb950; }
+.b-none     { background:rgba(125,133,144,0.15);color:#7d8590; }
+.b-high     { background:rgba(248,81,73,0.15);  color:#f85149; }
+.b-med      { background:rgba(210,153,34,0.15); color:#e3b341; }
+.b-low      { background:rgba(63,185,80,0.15);  color:#3fb950; }
+.b-active   { background:rgba(63,185,80,0.15);  color:#3fb950; }
+
+/* ── AVATAR ── */
+.av { width:26px; height:26px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; margin-right:6px; vertical-align:middle; }
+
+/* ── BUTTONS ── */
+.btn-g { padding:4px 11px; border-radius:6px; background:rgba(63,185,80,0.15); color:#3fb950; font-size:11px; font-weight:600; border:1px solid rgba(63,185,80,0.3); cursor:pointer; }
+.btn-r { padding:4px 11px; border-radius:6px; background:rgba(248,81,73,0.15); color:#f85149; font-size:11px; font-weight:600; border:1px solid rgba(248,81,73,0.3); cursor:pointer; }
+.btn-b { padding:7px 16px; border-radius:7px; background:#1f6feb; color:#fff; font-size:12px; font-weight:600; border:none; cursor:pointer; }
+.btn-outline { padding:7px 16px; border-radius:7px; background:transparent; color:#58a6ff; font-size:12px; font-weight:600; border:1px solid #1f6feb; cursor:pointer; }
+
+/* ── FORM ── */
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+.form-row1 { margin-bottom:14px; }
+.fl { font-size:11px; color:var(--muted); font-weight:600; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.3px; }
+.fi { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:8px 12px; font-size:12px; color:var(--text); font-family:'Manrope',sans-serif; }
+.fi:focus { outline:none; border-color:#58a6ff; }
+select.fi { cursor:pointer; }
+
+/* ── PROGRESS ── */
+.pw { margin-bottom:12px; }
+.pl { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; }
+.pb { height:5px; background:var(--surface2); border-radius:4px; overflow:hidden; }
+.pf { height:100%; border-radius:4px; }
+
+/* ── PENDING ITEM ── */
+.pi { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+.pi:last-child { border-bottom:none; }
+.pi-actions { margin-left:auto; display:flex; gap:6px; }
+.pi-name { font-size:12px; font-weight:600; }
+.pi-sub { font-size:10px; color:var(--muted); }
+
+/* ── LEAVE STAGES ── */
+.lstages { display:flex; align-items:center; gap:4px; margin-top:8px; }
+.ls { flex:1; text-align:center; padding:5px; border-radius:5px; font-size:9px; font-weight:700; }
+.ls-line { width:16px; height:2px; background:var(--border); flex-shrink:0; }
+.ls-done { background:rgba(63,185,80,0.15); color:#3fb950; }
+.ls-active { background:rgba(88,166,255,0.15); color:#58a6ff; }
+.ls-wait { background:var(--surface2); color:var(--muted); }
+
+/* ── LEAVE CARD ── */
+.lc { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px; }
+
+/* ── PAYROLL SUMMARY ── */
+.ps { display:flex; gap:10px; margin-bottom:14px; }
+.pc { flex:1; background:var(--surface2); border-radius:7px; padding:10px; text-align:center; border:1px solid var(--border); }
+.pv { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; margin-top:3px; }
+.pl2 { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+
+/* ── ACTIVITY ── */
+.act { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:11px; }
+.act:last-child { border-bottom:none; }
+.adot { width:7px; height:7px; border-radius:50%; margin-top:3px; flex-shrink:0; }
+.atime { font-size:10px; color:var(--muted); }
+
+/* ── LOGIN PAGE ── */
+.login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg); }
+.login-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:36px; width:380px; }
+.login-logo { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; text-align:center; margin-bottom:4px; }
+.login-sub { font-size:12px; color:var(--muted); text-align:center; margin-bottom:28px; }
+.login-tab { display:flex; background:var(--surface2); border-radius:8px; padding:3px; margin-bottom:24px; }
+.ltab { flex:1; text-align:center; padding:7px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; color:var(--muted); }
+.ltab.active { background:var(--surface); color:var(--text); }
+
+/* ── AUDIT LOG ── */
+.al-filters { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.al-filter { padding:5px 12px; border-radius:6px; background:var(--surface2); border:1px solid var(--border); font-size:11px; color:var(--muted); cursor:pointer; }
+.al-filter.active { border-color:#58a6ff; color:#58a6ff; }
+
+/* ── PROFILE CARD ── */
+.profile-header { display:flex; align-items:center; gap:20px; padding:20px; background:var(--surface2); border-radius:10px; margin-bottom:16px; border:1px solid var(--border); }
+.profile-av { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; }
+.profile-name { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; }
+.profile-role { font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* ── PAYSLIP ── */
+.payslip { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.payslip-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+.payslip-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.payslip-row:last-child { border-bottom:none; font-weight:700; font-size:14px; }
+.payslip-total { background:var(--surface); border-radius:8px; padding:12px 16px; margin-top:12px; display:flex; justify-content:space-between; align-items:center; }
+
+/* ── SECTION TITLE ── */
+.sec-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:14px; }
+
+/* ── CHIP ROW ── */
+.chip-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.chip { padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700; }
+</style>
+</head>
+<body>
+
+<!-- TOP ROLE SWITCHER -->
+<div class="top-bar">
+  <span>Role →</span>
+  <button class="role-btn active" data-role="admin"      onclick="switchRole('admin')">👤 Admin</button>
+  <button class="role-btn"        data-role="manager"    onclick="switchRole('manager')">👔 Manager</button>
+  <button class="role-btn"        data-role="employee"   onclick="switchRole('employee')">🧑 Employee</button>
+  <button class="role-btn"        data-role="hr"         onclick="switchRole('hr')">🏥 HR</button>
+  <button class="role-btn"        data-role="accountant" onclick="switchRole('accountant')">💰 Accountant</button>
+  <span style="margin-left:20px;color:#30363d">|</span>
+  <span style="margin-left:10px">Page →</span>
+  <div id="page-tabs" style="display:flex;gap:6px;"></div>
+</div>
+
+<div class="app">
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">HR<span style="color:#58a6ff">Portal</span></div>
+    <div class="logo-sub">Role Management</div>
+  </div>
+
+  <!-- Admin Nav -->
+  <div id="nav-admin">
+    <div class="nav-section">
+      <div class="sec-label">Main</div>
+      <div class="ni active" onclick="gotoPage('admin','dashboard')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="ni" onclick="gotoPage('admin','pending')"><span class="ic">⏳</span>Pending Approvals<span class="bdg">3</span></div>
+      <div class="ni" onclick="gotoPage('admin','users')"><span class="ic">👥</span>Manage Users</div>
+      <div class="ni" onclick="gotoPage('admin','departments')"><span class="ic">🏢</span>Departments</div>
+    </div>
+    <div class="nav-section">
+      <div class="sec-label">Modules</div>
+      <div class="ni" onclick="gotoPage('admin','tasks')"><span class="ic">✅</span>All Tasks</div>
+      <div class="ni" onclick="gotoPage('admin','leave')"><span class="ic">📅</span>Leave Requests</div>
+      <div class="ni" onclick="gotoPage('admin','payroll')"><span class="ic">💰</span>Payroll</div>
+      <div class="ni" onclick="gotoPage('admin','audit')"><span class="ic">🔍</span>Audit Logs</div>
+    </div>
+  </div>
+
+  <!-- Manager Nav -->
+  <div id="nav-manager" style="display:none">
+    <div class="nav-section">
+      <div class="sec-label">Main</div>
+      <div class="ni active" onclick="gotoPage('manager','dashboard')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="ni" onclick="gotoPage('manager','team')"><span class="ic">👥</span>My Team</div>
+      <div class="ni" onclick="gotoPage('manager','tasks')"><span class="ic">✅</span>Tasks</div>
+      <div class="ni" onclick="gotoPage('manager','leave')"><span class="ic">📅</span>Leave Approvals<span class="bdg">2</span></div>
+      <div class="ni" onclick="gotoPage('manager','reports')"><span class="ic">📊</span>Reports</div>
+    </div>
+  </div>
+
+  <!-- Employee Nav -->
+  <div id="nav-employee" style="display:none">
+    <div class="nav-section">
+      <div class="sec-label">Main</div>
+      <div class="ni active" onclick="gotoPage('employee','dashboard')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="ni" onclick="gotoPage('employee','tasks')"><span class="ic">✅</span>My Tasks</div>
+      <div class="ni" onclick="gotoPage('employee','leave')"><span class="ic">📅</span>Apply Leave</div>
+      <div class="ni" onclick="gotoPage('employee','leavehist')"><span class="ic">📋</span>Leave History</div>
+      <div class="ni" onclick="gotoPage('employee','payslip')"><span class="ic">💰</span>My Payslip</div>
+      <div class="ni" onclick="gotoPage('employee','profile')"><span class="ic">👤</span>My Profile</div>
+    </div>
+  </div>
+
+  <!-- HR Nav -->
+  <div id="nav-hr" style="display:none">
+    <div class="nav-section">
+      <div class="sec-label">Main</div>
+      <div class="ni active" onclick="gotoPage('hr','dashboard')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="ni" onclick="gotoPage('hr','employees')"><span class="ic">👥</span>Employee Records</div>
+      <div class="ni" onclick="gotoPage('hr','leave')"><span class="ic">📅</span>Leave Approvals<span class="bdg">4</span></div>
+      <div class="ni" onclick="gotoPage('hr','attendance')"><span class="ic">📊</span>Attendance Reports</div>
+    </div>
+  </div>
+
+  <!-- Accountant Nav -->
+  <div id="nav-accountant" style="display:none">
+    <div class="nav-section">
+      <div class="sec-label">Main</div>
+      <div class="ni active" onclick="gotoPage('accountant','dashboard')"><span class="ic">🏠</span>Dashboard</div>
+      <div class="ni" onclick="gotoPage('accountant','payroll')"><span class="ic">💰</span>Payroll</div>
+      <div class="ni" onclick="gotoPage('accountant','generate')"><span class="ic">➕</span>Generate Payslip</div>
+      <div class="ni" onclick="gotoPage('accountant','reports')"><span class="ic">📊</span>Reports</div>
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="uavatar" id="uav" style="background:#1f3958;color:#58a6ff">A</div>
+    <div><div class="uname" id="uname">Alex Kumar</div><div class="urole" id="urole">Admin</div></div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+  <div class="topbar">
+    <div><div class="tbtitle" id="tbtitle">Admin Dashboard</div><div class="tbsub" id="tbsub">Welcome back, Alex 👋</div></div>
+    <div class="tbright">
+      <div class="searchbox">🔍 <span>Search...</span></div>
+      <div class="iconbtn">🔔</div>
+      <div class="iconbtn">⚙️</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- ████████ ADMIN PAGES ████████ -->
+
+  <!-- Admin: Dashboard -->
+  <div class="page active" id="page-admin-dashboard">
+    <div class="sg">
+      <div class="sc blue"><div class="slbl">Total Employees</div><div class="sval">48</div><div class="schg up">↑ 3 this month</div><div class="sic">👥</div></div>
+      <div class="sc orange"><div class="slbl">Pending Approvals</div><div class="sval">3</div><div class="schg">Registration requests</div><div class="sic">⏳</div></div>
+      <div class="sc green"><div class="slbl">Active Tasks</div><div class="sval">24</div><div class="schg up">↑ 8 in progress</div><div class="sic">✅</div></div>
+      <div class="sc red"><div class="slbl">Leave Requests</div><div class="sval">7</div><div class="schg">Across all stages</div><div class="sic">📅</div></div>
+    </div>
+    <div class="g3">
+      <div class="card">
+        <div class="ch"><div class="ct">⏳ Pending Registrations</div><div class="ca" onclick="gotoPage('admin','pending')">View All</div></div>
+        <div class="cb">
+          <div class="pi"><div class="av" style="background:#1f3958;color:#58a6ff">R</div><div><div class="pi-name">Riya Sharma</div><div class="pi-sub">Engineering · Employee</div></div><div class="pi-actions"><button class="btn-g">✓</button><button class="btn-r">✗</button></div></div>
+          <div class="pi"><div class="av" style="background:#2d1f58;color:#a371f7">K</div><div><div class="pi-name">Karan Mehta</div><div class="pi-sub">Finance · Accountant</div></div><div class="pi-actions"><button class="btn-g">✓</button><button class="btn-r">✗</button></div></div>
+          <div class="pi"><div class="av" style="background:#1f3a2d;color:#3fb950">P</div><div><div class="pi-name">Priya Nair</div><div class="pi-sub">HR Dept · HR Role</div></div><div class="pi-actions"><button class="btn-g">✓</button><button class="btn-r">✗</button></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">🏢 Departments</div></div>
+        <div class="cb">
+          <div class="pw"><div class="pl"><span>Engineering</span><span style="color:#58a6ff">18</span></div><div class="pb"><div class="pf" style="width:75%;background:#58a6ff"></div></div></div>
+          <div class="pw"><div class="pl"><span>Finance</span><span style="color:#a371f7">12</span></div><div class="pb"><div class="pf" style="width:50%;background:#a371f7"></div></div></div>
+          <div class="pw"><div class="pl"><span>HR</span><span style="color:#f85149">10</span></div><div class="pb"><div class="pf" style="width:40%;background:#f85149"></div></div></div>
+          <div class="pw"><div class="pl"><span>Sales</span><span style="color:#3fb950">8</span></div><div class="pb"><div class="pf" style="width:30%;background:#3fb950"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct">🔍 Recent Audit Logs</div><div class="ca" onclick="gotoPage('admin','audit')">View All</div></div>
+      <div class="cb">
+        <table class="tbl"><thead><tr><th>User</th><th>Action</th><th>Resource</th><th>IP</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">AM</span>Alex M.</td><td><span class="bdg b-approved">APPROVED_USER</span></td><td style="color:var(--muted)">users</td><td style="color:var(--muted);font-size:11px">192.168.1.4</td><td style="color:var(--muted);font-size:11px">2 min ago</td></tr>
+          <tr><td><span class="av" style="background:#2d1f3a;color:#f43f5e;font-size:9px">SK</span>Sneha K.</td><td><span class="bdg b-approved">APPROVED_LEAVE</span></td><td style="color:var(--muted)">leave</td><td style="color:var(--muted);font-size:11px">192.168.1.8</td><td style="color:var(--muted);font-size:11px">15 min ago</td></tr>
+          <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">MG</span>Mike G.</td><td><span class="bdg b-progress">ASSIGNED_TASK</span></td><td style="color:var(--muted)">tasks</td><td style="color:var(--muted);font-size:11px">192.168.1.12</td><td style="color:var(--muted);font-size:11px">1 hr ago</td></tr>
+          <tr><td><span class="av" style="background:#2d2d1f;color:#d29922;font-size:9px">AC</span>Anita C.</td><td><span class="bdg b-done">GENERATED_PAYROLL</span></td><td style="color:var(--muted)">payroll</td><td style="color:var(--muted);font-size:11px">192.168.1.5</td><td style="color:var(--muted);font-size:11px">2 hr ago</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Pending Approvals -->
+  <div class="page" id="page-admin-pending">
+    <div class="sec-title">⏳ Pending Registration Approvals</div>
+    <div class="card">
+      <div class="ch"><div class="ct">New Registration Requests</div><div style="font-size:11px;color:var(--muted)">3 pending</div></div>
+      <div class="cb">
+        <table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Requested Role</th><th>Applied On</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td><span class="av" style="background:#1f3958;color:#58a6ff">R</span>Riya Sharma</td><td style="color:var(--muted);font-size:11px">riya@company.com</td><td style="font-size:11px">Engineering</td><td><span class="bdg b-progress">Employee</span></td><td style="color:var(--muted);font-size:11px">Mar 5, 2026</td><td><div style="display:flex;gap:6px"><button class="btn-g">✓ Approve</button><button class="btn-r">✗ Reject</button></div></td></tr>
+          <tr><td><span class="av" style="background:#2d1f58;color:#a371f7">K</span>Karan Mehta</td><td style="color:var(--muted);font-size:11px">karan@company.com</td><td style="font-size:11px">Finance</td><td><span class="bdg" style="background:rgba(163,113,247,0.15);color:#a371f7">Accountant</span></td><td style="color:var(--muted);font-size:11px">Mar 4, 2026</td><td><div style="display:flex;gap:6px"><button class="btn-g">✓ Approve</button><button class="btn-r">✗ Reject</button></div></td></tr>
+          <tr><td><span class="av" style="background:#1f3a2d;color:#3fb950">P</span>Priya Nair</td><td style="color:var(--muted);font-size:11px">priya@company.com</td><td style="font-size:11px">HR</td><td><span class="bdg b-rejected" style="background:rgba(244,63,94,0.15);color:#f43f5e">HR</span></td><td style="color:var(--muted);font-size:11px">Mar 3, 2026</td><td><div style="display:flex;gap:6px"><button class="btn-g">✓ Approve</button><button class="btn-r">✗ Reject</button></div></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Manage Users -->
+  <div class="page" id="page-admin-users">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="sec-title" style="margin:0">👥 Manage Users</div>
+      <button class="btn-b">+ Add User</button>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <div style="display:flex;gap:8px">
+          <div class="al-filter active">All (48)</div>
+          <div class="al-filter">Admin (1)</div>
+          <div class="al-filter">Manager (4)</div>
+          <div class="al-filter">Employee (36)</div>
+          <div class="al-filter">HR (4)</div>
+          <div class="al-filter">Accountant (3)</div>
+        </div>
+      </div>
+      <div class="cb">
+        <table class="tbl"><thead><tr><th>Name</th><th>Username</th><th>Department</th><th>Role</th><th>Manager</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td><span class="av" style="background:#1f3958;color:#58a6ff">J</span>John Doe</td><td style="color:var(--muted);font-size:11px">john.doe</td><td style="font-size:11px">Engineering</td><td><span class="bdg b-progress">Employee</span></td><td style="font-size:11px;color:var(--muted)">Mike G.</td><td><span class="bdg b-active">Active</span></td><td><div style="display:flex;gap:6px"><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button><button class="btn-r" style="padding:3px 10px">Deactivate</button></div></td></tr>
+          <tr><td><span class="av" style="background:#2d1f0e;color:#d97706">M</span>Mike George</td><td style="color:var(--muted);font-size:11px">mike.g</td><td style="font-size:11px">Engineering</td><td><span class="bdg b-pending">Manager</span></td><td style="font-size:11px;color:var(--muted)">—</td><td><span class="bdg b-active">Active</span></td><td><div style="display:flex;gap:6px"><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button><button class="btn-r" style="padding:3px 10px">Deactivate</button></div></td></tr>
+          <tr><td><span class="av" style="background:#2d1f3a;color:#f43f5e">S</span>Sneha Kumar</td><td style="color:var(--muted);font-size:11px">sneha.k</td><td style="font-size:11px">HR</td><td><span class="bdg" style="background:rgba(244,63,94,0.15);color:#f43f5e">HR</span></td><td style="font-size:11px;color:var(--muted)">—</td><td><span class="bdg b-active">Active</span></td><td><div style="display:flex;gap:6px"><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button><button class="btn-r" style="padding:3px 10px">Deactivate</button></div></td></tr>
+          <tr><td><span class="av" style="background:#1f2d3a;color:#26c6da">A</span>Anita Chawla</td><td style="color:var(--muted);font-size:11px">anita.c</td><td style="font-size:11px">Finance</td><td><span class="bdg" style="background:rgba(163,113,247,0.15);color:#a371f7">Accountant</span></td><td style="font-size:11px;color:var(--muted)">—</td><td><span class="bdg b-active">Active</span></td><td><div style="display:flex;gap:6px"><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button><button class="btn-r" style="padding:3px 10px">Deactivate</button></div></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Audit Logs -->
+  <div class="page" id="page-admin-audit">
+    <div class="sec-title">🔍 Audit Logs</div>
+    <div class="al-filters">
+      <div class="al-filter active">All Actions</div>
+      <div class="al-filter">APPROVED_LEAVE</div>
+      <div class="al-filter">ASSIGNED_TASK</div>
+      <div class="al-filter">GENERATED_PAYROLL</div>
+      <div class="al-filter">APPROVED_USER</div>
+      <div class="al-filter">REJECTED_LEAVE</div>
+    </div>
+    <div class="card">
+      <div class="cb">
+        <table class="tbl"><thead><tr><th>User</th><th>Role</th><th>Action</th><th>Resource</th><th>Description</th><th>IP</th><th>Timestamp</th></tr></thead>
+        <tbody>
+          <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">AM</span>Alex M.</td><td style="font-size:11px;color:var(--muted)">Admin</td><td><span class="bdg b-approved">APPROVED_USER</span></td><td style="font-size:11px">users</td><td style="font-size:11px;color:var(--muted)">Approved Riya Sharma registration</td><td style="font-size:10px;color:var(--muted)">192.168.1.4</td><td style="font-size:10px;color:var(--muted)">Mar 6, 10:02 AM</td></tr>
+          <tr><td><span class="av" style="background:#2d1f3a;color:#f43f5e;font-size:9px">SK</span>Sneha K.</td><td style="font-size:11px;color:var(--muted)">HR</td><td><span class="bdg b-approved">APPROVED_LEAVE</span></td><td style="font-size:11px">leave</td><td style="font-size:11px;color:var(--muted)">Final approved leave for John Doe</td><td style="font-size:10px;color:var(--muted)">192.168.1.8</td><td style="font-size:10px;color:var(--muted)">Mar 6, 09:48 AM</td></tr>
+          <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">MG</span>Mike G.</td><td style="font-size:11px;color:var(--muted)">Manager</td><td><span class="bdg b-progress">ASSIGNED_TASK</span></td><td style="font-size:11px">tasks</td><td style="font-size:11px;color:var(--muted)">Assigned API Integration to John Doe</td><td style="font-size:10px;color:var(--muted)">192.168.1.12</td><td style="font-size:10px;color:var(--muted)">Mar 6, 09:15 AM</td></tr>
+          <tr><td><span class="av" style="background:#2d2d1f;color:#d29922;font-size:9px">AC</span>Anita C.</td><td style="font-size:11px;color:var(--muted)">Accountant</td><td><span class="bdg b-done">GENERATED_PAYROLL</span></td><td style="font-size:11px">payroll</td><td style="font-size:11px;color:var(--muted)">Generated March payslip for John Doe</td><td style="font-size:10px;color:var(--muted)">192.168.1.5</td><td style="font-size:10px;color:var(--muted)">Mar 5, 04:30 PM</td></tr>
+          <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">AM</span>Alex M.</td><td style="font-size:11px;color:var(--muted)">Admin</td><td><span class="bdg b-rejected">REJECTED_USER</span></td><td style="font-size:11px">users</td><td style="font-size:11px;color:var(--muted)">Rejected registration for unknown user</td><td style="font-size:10px;color:var(--muted)">192.168.1.4</td><td style="font-size:10px;color:var(--muted)">Mar 5, 02:10 PM</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Tasks -->
+  <div class="page" id="page-admin-tasks">
+    <div class="sec-title">✅ All Tasks</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Task</th><th>Assigned To</th><th>Assigned By</th><th>Dept</th><th>Priority</th><th>Status</th><th>Deadline</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:12px">API Integration</td><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">JD</span>John D.</td><td style="font-size:11px;color:var(--muted)">Mike G.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td><span class="bdg b-high">High</span></td><td><span class="bdg b-progress">In Progress</span></td><td style="font-size:11px;color:var(--muted)">Mar 10</td></tr>
+        <tr><td style="font-size:12px">UI Redesign</td><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">SP</span>Sara P.</td><td style="font-size:11px;color:var(--muted)">Mike G.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td><span class="bdg b-med">Med</span></td><td><span class="bdg b-done">Completed</span></td><td style="font-size:11px;color:var(--muted)">Mar 5</td></tr>
+        <tr><td style="font-size:12px">DB Migration</td><td><span class="av" style="background:#2d1f3a;color:#a371f7;font-size:9px">RK</span>Raj K.</td><td style="font-size:11px;color:var(--muted)">Mike G.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td><span class="bdg b-high">High</span></td><td><span class="bdg b-none">Not Started</span></td><td style="font-size:11px;color:#f85149">Mar 7 ⚠️</td></tr>
+        <tr><td style="font-size:12px">Q1 Sales Report</td><td><span class="av" style="background:#2d1a0e;color:#fb923c;font-size:9px">AM</span>Arjun M.</td><td style="font-size:11px;color:var(--muted)">Neha R.</td><td style="font-size:11px;color:var(--muted)">Sales</td><td><span class="bdg b-low">Low</span></td><td><span class="bdg b-progress">In Progress</span></td><td style="font-size:11px;color:var(--muted)">Mar 15</td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <!-- Admin: Leave -->
+  <div class="page" id="page-admin-leave">
+    <div class="sec-title">📅 All Leave Requests</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Manager</th><th>HR</th><th>Final</th></tr></thead>
+      <tbody>
+        <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">JD</span>John D.</td><td style="font-size:11px">Casual</td><td style="font-size:11px">Mar 10</td><td style="font-size:11px">Mar 12</td><td style="font-size:11px">3</td><td><span class="bdg b-approved">✅</span></td><td><span class="bdg b-pending">⏳</span></td><td><span class="bdg b-pending">Pending</span></td></tr>
+        <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">SP</span>Sara P.</td><td style="font-size:11px">Sick</td><td style="font-size:11px">Feb 20</td><td style="font-size:11px">Feb 20</td><td style="font-size:11px">1</td><td><span class="bdg b-approved">✅</span></td><td><span class="bdg b-approved">✅</span></td><td><span class="bdg b-approved">Approved</span></td></tr>
+        <tr><td><span class="av" style="background:#2d1f3a;color:#a371f7;font-size:9px">RK</span>Raj K.</td><td style="font-size:11px">Earned</td><td style="font-size:11px">Mar 15</td><td style="font-size:11px">Mar 18</td><td style="font-size:11px">4</td><td><span class="bdg b-rejected">❌</span></td><td><span class="bdg b-none">—</span></td><td><span class="bdg b-rejected">Rejected</span></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <!-- Admin: Payroll -->
+  <div class="page" id="page-admin-payroll">
+    <div class="sec-title">💰 Payroll Overview</div>
+    <div class="sg sg3">
+      <div class="sc purple"><div class="slbl">Total Payroll</div><div class="sval">₹24L</div><div class="schg">March 2026</div><div class="sic">💰</div></div>
+      <div class="sc green"><div class="slbl">Payslips Generated</div><div class="sval">48</div><div class="schg up">All completed</div><div class="sic">✅</div></div>
+      <div class="sc red"><div class="slbl">Total Deductions</div><div class="sval">₹3.2L</div><div class="schg">This month</div><div class="sic">📉</div></div>
+    </div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Employee</th><th>Dept</th><th>Month</th><th>Basic</th><th>Deductions</th><th>Net Salary</th><th>Generated By</th></tr></thead>
+      <tbody>
+        <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">JD</span>John D.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td style="font-size:11px">Mar 2026</td><td style="font-size:12px;color:#3fb950">₹55K</td><td style="font-size:12px;color:#f85149">₹7K</td><td style="font-size:12px;color:#a371f7;font-weight:700">₹48K</td><td style="font-size:11px;color:var(--muted)">Anita C.</td></tr>
+        <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">SP</span>Sara P.</td><td style="font-size:11px;color:var(--muted)">Sales</td><td style="font-size:11px">Mar 2026</td><td style="font-size:12px;color:#3fb950">₹48K</td><td style="font-size:12px;color:#f85149">₹6K</td><td style="font-size:12px;color:#a371f7;font-weight:700">₹42K</td><td style="font-size:11px;color:var(--muted)">Anita C.</td></tr>
+        <tr><td><span class="av" style="background:#2d1f0e;color:#d97706;font-size:9px">MG</span>Mike G.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td style="font-size:11px">Mar 2026</td><td style="font-size:12px;color:#3fb950">₹75K</td><td style="font-size:12px;color:#f85149">₹9K</td><td style="font-size:12px;color:#a371f7;font-weight:700">₹66K</td><td style="font-size:11px;color:var(--muted)">Anita C.</td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <!-- Admin: Departments -->
+  <div class="page" id="page-admin-departments">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sec-title" style="margin:0">🏢 Departments</div><button class="btn-b">+ Add Department</button></div>
+    <div class="g2">
+      <div class="card"><div class="ch" style="background:rgba(88,166,255,0.08)"><div class="ct" style="color:#58a6ff">Engineering</div><div style="font-size:11px;color:var(--muted)">18 employees</div></div><div class="cb"><div style="font-size:12px;margin-bottom:8px"><span style="color:var(--muted)">Manager:</span> Mike George</div><div class="chip-row"><span class="chip" style="background:rgba(88,166,255,0.1);color:#58a6ff">Backend</span><span class="chip" style="background:rgba(88,166,255,0.1);color:#58a6ff">Frontend</span><span class="chip" style="background:rgba(88,166,255,0.1);color:#58a6ff">DevOps</span></div><div style="display:flex;gap:6px;margin-top:10px"><button class="btn-outline" style="padding:4px 12px;font-size:11px">Edit</button></div></div></div>
+      <div class="card"><div class="ch" style="background:rgba(163,113,247,0.08)"><div class="ct" style="color:#a371f7">Finance</div><div style="font-size:11px;color:var(--muted)">12 employees</div></div><div class="cb"><div style="font-size:12px;margin-bottom:8px"><span style="color:var(--muted)">Manager:</span> Rahul Verma</div><div class="chip-row"><span class="chip" style="background:rgba(163,113,247,0.1);color:#a371f7">Accounts</span><span class="chip" style="background:rgba(163,113,247,0.1);color:#a371f7">Payroll</span></div><div style="display:flex;gap:6px;margin-top:10px"><button class="btn-outline" style="padding:4px 12px;font-size:11px">Edit</button></div></div></div>
+      <div class="card"><div class="ch" style="background:rgba(244,63,94,0.08)"><div class="ct" style="color:#f43f5e">Human Resources</div><div style="font-size:11px;color:var(--muted)">10 employees</div></div><div class="cb"><div style="font-size:12px;margin-bottom:8px"><span style="color:var(--muted)">Manager:</span> Sneha Kumar</div><div class="chip-row"><span class="chip" style="background:rgba(244,63,94,0.1);color:#f43f5e">Recruitment</span><span class="chip" style="background:rgba(244,63,94,0.1);color:#f43f5e">Compliance</span></div><div style="display:flex;gap:6px;margin-top:10px"><button class="btn-outline" style="padding:4px 12px;font-size:11px">Edit</button></div></div></div>
+      <div class="card"><div class="ch" style="background:rgba(63,185,80,0.08)"><div class="ct" style="color:#3fb950">Sales</div><div style="font-size:11px;color:var(--muted)">8 employees</div></div><div class="cb"><div style="font-size:12px;margin-bottom:8px"><span style="color:var(--muted)">Manager:</span> Neha Raj</div><div class="chip-row"><span class="chip" style="background:rgba(63,185,80,0.1);color:#3fb950">B2B</span><span class="chip" style="background:rgba(63,185,80,0.1);color:#3fb950">B2C</span></div><div style="display:flex;gap:6px;margin-top:10px"><button class="btn-outline" style="padding:4px 12px;font-size:11px">Edit</button></div></div></div>
+    </div>
+  </div>
+
+  <!-- ████████ MANAGER PAGES ████████ -->
+  <div class="page" id="page-manager-dashboard">
+    <div class="sg">
+      <div class="sc blue"><div class="slbl">Team Size</div><div class="sval">9</div><div class="schg">Engineering dept</div><div class="sic">👥</div></div>
+      <div class="sc orange"><div class="slbl">Pending Leaves</div><div class="sval">2</div><div class="schg">Needs review</div><div class="sic">📅</div></div>
+      <div class="sc green"><div class="slbl">Active Tasks</div><div class="sval">11</div><div class="schg up">↑ 3 done today</div><div class="sic">✅</div></div>
+      <div class="sc red"><div class="slbl">Overdue</div><div class="sval">2</div><div class="schg dn">↓ Attention needed</div><div class="sic">⚠️</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">📅 Leave Approvals (Stage 1)</div></div><div class="cb">
+        <div class="pi"><div class="av" style="background:#1f3958;color:#58a6ff">J</div><div><div class="pi-name">John Doe — Casual (3 days)</div><div class="pi-sub" style="color:#e3b341">⚠️ Has 2 active tasks</div></div><div class="pi-actions"><button class="btn-g">✓</button><button class="btn-r">✗</button></div></div>
+        <div class="pi"><div class="av" style="background:#1f3a1f;color:#3fb950">S</div><div><div class="pi-name">Sara Patel — Sick (1 day)</div><div class="pi-sub" style="color:#3fb950">✅ No active tasks</div></div><div class="pi-actions"><button class="btn-g">✓</button><button class="btn-r">✗</button></div></div>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">✅ Task Summary</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>Completed</span><span style="color:#3fb950">6</span></div><div class="pb"><div class="pf" style="width:55%;background:#3fb950"></div></div></div>
+        <div class="pw"><div class="pl"><span>In Progress</span><span style="color:#58a6ff">4</span></div><div class="pb"><div class="pf" style="width:36%;background:#58a6ff"></div></div></div>
+        <div class="pw"><div class="pl"><span>Not Started</span><span style="color:#7d8590">1</span></div><div class="pb"><div class="pf" style="width:9%;background:#7d8590"></div></div></div>
+        <div class="pw"><div class="pl"><span>Overdue</span><span style="color:#f85149">2</span></div><div class="pb"><div class="pf" style="width:18%;background:#f85149"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-manager-team">
+    <div class="sec-title">👥 My Team — Engineering</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Name</th><th>Role</th><th>Active Tasks</th><th>Completed</th><th>Leave Status</th></tr></thead>
+      <tbody>
+        <tr><td><span class="av" style="background:#1f3958;color:#58a6ff">J</span>John Doe</td><td style="font-size:11px;color:var(--muted)">Employee</td><td><span class="bdg b-progress">2</span></td><td style="font-size:12px;color:#3fb950">8</td><td><span class="bdg b-pending">Leave Pending</span></td></tr>
+        <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950">S</span>Sara Patel</td><td style="font-size:11px;color:var(--muted)">Employee</td><td><span class="bdg b-progress">1</span></td><td style="font-size:12px;color:#3fb950">11</td><td><span class="bdg b-none">None</span></td></tr>
+        <tr><td><span class="av" style="background:#2d1f3a;color:#a371f7">R</span>Raj Kumar</td><td style="font-size:11px;color:var(--muted)">Employee</td><td><span class="bdg b-high">3</span></td><td style="font-size:12px;color:#3fb950">5</td><td><span class="bdg b-rejected">Leave Rejected</span></td></tr>
+        <tr><td><span class="av" style="background:#2d2d1f;color:#d29922">A</span>Asha Menon</td><td style="font-size:11px;color:var(--muted)">Employee</td><td><span class="bdg b-progress">1</span></td><td style="font-size:12px;color:#3fb950">9</td><td><span class="bdg b-none">None</span></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-manager-tasks">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="sec-title" style="margin:0">✅ Task Management</div><button class="btn-b">+ Create Task</button></div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Task</th><th>Assigned To</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:12px">API Integration</td><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">JD</span>John D.</td><td><span class="bdg b-high">High</span></td><td><span class="bdg b-progress">In Progress</span></td><td style="font-size:11px;color:var(--muted)">Mar 10</td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button></td></tr>
+        <tr><td style="font-size:12px">UI Redesign</td><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">SP</span>Sara P.</td><td><span class="bdg b-med">Med</span></td><td><span class="bdg b-done">Completed</span></td><td style="font-size:11px;color:var(--muted)">Mar 5</td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button></td></tr>
+        <tr><td style="font-size:12px">DB Migration</td><td><span class="av" style="background:#2d1f3a;color:#a371f7;font-size:9px">RK</span>Raj K.</td><td><span class="bdg b-high">High</span></td><td><span class="bdg b-none">Not Started</span></td><td style="font-size:11px;color:#f85149">Mar 7 ⚠️</td><td><button class="btn-r" style="padding:3px 10px">Reassign</button></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-manager-leave">
+    <div class="sec-title">📅 Leave Approvals — Stage 1</div>
+    <div class="card"><div class="cb">
+      <div class="pi"><div class="av" style="background:#1f3958;color:#58a6ff">J</div><div><div class="pi-name">John Doe</div><div class="pi-sub">Casual · Mar 10–12 · 3 days · Reason: Family function</div><div style="font-size:10px;color:#e3b341;margin-top:3px">⚠️ Has 2 active tasks — API Integration (High, due Mar 10)</div></div><div class="pi-actions"><button class="btn-g">✓ Approve</button><button class="btn-r">✗ Reject</button></div></div>
+      <div class="pi"><div class="av" style="background:#1f3a1f;color:#3fb950">S</div><div><div class="pi-name">Sara Patel</div><div class="pi-sub">Sick · Mar 8 · 1 day · Reason: Fever</div><div style="font-size:10px;color:#3fb950;margin-top:3px">✅ No active tasks assigned</div></div><div class="pi-actions"><button class="btn-g">✓ Approve</button><button class="btn-r">✗ Reject</button></div></div>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-manager-reports">
+    <div class="sec-title">📊 Progress Reports</div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">Team Task Progress</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>John Doe</span><span style="color:#58a6ff">60%</span></div><div class="pb"><div class="pf" style="width:60%;background:#58a6ff"></div></div></div>
+        <div class="pw"><div class="pl"><span>Sara Patel</span><span style="color:#3fb950">92%</span></div><div class="pb"><div class="pf" style="width:92%;background:#3fb950"></div></div></div>
+        <div class="pw"><div class="pl"><span>Raj Kumar</span><span style="color:#f85149">30%</span></div><div class="pb"><div class="pf" style="width:30%;background:#f85149"></div></div></div>
+        <div class="pw"><div class="pl"><span>Asha Menon</span><span style="color:#a371f7">75%</span></div><div class="pb"><div class="pf" style="width:75%;background:#a371f7"></div></div></div>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">Task Status Breakdown</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>Completed</span><span style="color:#3fb950">6 tasks</span></div><div class="pb"><div class="pf" style="width:55%;background:#3fb950"></div></div></div>
+        <div class="pw"><div class="pl"><span>In Progress</span><span style="color:#58a6ff">4 tasks</span></div><div class="pb"><div class="pf" style="width:36%;background:#58a6ff"></div></div></div>
+        <div class="pw"><div class="pl"><span>Overdue</span><span style="color:#f85149">2 tasks</span></div><div class="pb"><div class="pf" style="width:18%;background:#f85149"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ████████ EMPLOYEE PAGES ████████ -->
+  <div class="page" id="page-employee-dashboard">
+    <div class="sg">
+      <div class="sc blue"><div class="slbl">My Tasks</div><div class="sval">4</div><div class="schg">2 in progress</div><div class="sic">✅</div></div>
+      <div class="sc green"><div class="slbl">Leave Balance</div><div class="sval">12</div><div class="schg">Days remaining</div><div class="sic">📅</div></div>
+      <div class="sc orange"><div class="slbl">Tasks Done</div><div class="sval">8</div><div class="schg up">This month</div><div class="sic">🏆</div></div>
+      <div class="sc purple"><div class="slbl">Last Salary</div><div class="sval">₹48K</div><div class="schg">Feb 2026</div><div class="sic">💰</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">✅ My Tasks</div><div class="ca" onclick="gotoPage('employee','tasks')">View All</div></div><div class="cb">
+        <table class="tbl"><thead><tr><th>Task</th><th>Priority</th><th>Status</th><th>Due</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:12px">API Integration</td><td><span class="bdg b-high">High</span></td><td><span class="bdg b-progress">In Progress</span></td><td style="font-size:11px;color:var(--muted)">Mar 10</td></tr>
+          <tr><td style="font-size:12px">Unit Tests</td><td><span class="bdg b-med">Med</span></td><td><span class="bdg b-none">Not Started</span></td><td style="font-size:11px;color:var(--muted)">Mar 14</td></tr>
+          <tr><td style="font-size:12px">Code Review</td><td><span class="bdg b-low">Low</span></td><td><span class="bdg b-done">Completed</span></td><td style="font-size:11px;color:var(--muted)">Mar 5</td></tr>
+        </tbody></table>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">📅 Leave Status</div><div class="ca" onclick="gotoPage('employee','leave')">Apply</div></div><div class="cb">
+        <div class="lc"><div style="display:flex;justify-content:space-between"><div><div style="font-size:12px;font-weight:600">Casual Leave</div><div style="font-size:10px;color:var(--muted)">Mar 10–12 · 3 days</div></div><span class="bdg b-pending">⏳ Pending</span></div>
+        <div class="lstages"><div class="ls ls-done">✅ Manager</div><div class="ls-line"></div><div class="ls ls-active">⏳ HR</div><div class="ls-line"></div><div class="ls ls-wait">Final</div></div></div>
+        <div class="lc"><div style="display:flex;justify-content:space-between"><div><div style="font-size:12px;font-weight:600">Sick Leave</div><div style="font-size:10px;color:var(--muted)">Feb 20 · 1 day</div></div><span class="bdg b-approved">✅ Approved</span></div>
+        <div class="lstages"><div class="ls ls-done">✅ Manager</div><div class="ls-line"></div><div class="ls ls-done">✅ HR</div><div class="ls-line"></div><div class="ls ls-done">✅ Done</div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-employee-tasks">
+    <div class="sec-title">✅ My Tasks</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Task</th><th>Description</th><th>Priority</th><th>Status</th><th>Deadline</th><th>Update</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:12px">API Integration</td><td style="font-size:11px;color:var(--muted)">Connect frontend to backend APIs</td><td><span class="bdg b-high">High</span></td><td><span class="bdg b-progress">In Progress</span></td><td style="font-size:11px;color:var(--muted)">Mar 10</td><td><select class="fi" style="width:130px;padding:4px 8px;font-size:11px"><option>In Progress</option><option>Not Started</option><option>Completed</option></select></td></tr>
+        <tr><td style="font-size:12px">Unit Tests</td><td style="font-size:11px;color:var(--muted)">Write tests for auth module</td><td><span class="bdg b-med">Med</span></td><td><span class="bdg b-none">Not Started</span></td><td style="font-size:11px;color:var(--muted)">Mar 14</td><td><select class="fi" style="width:130px;padding:4px 8px;font-size:11px"><option>Not Started</option><option>In Progress</option><option>Completed</option></select></td></tr>
+        <tr><td style="font-size:12px">Code Review</td><td style="font-size:11px;color:var(--muted)">Review Sara's UI components</td><td><span class="bdg b-low">Low</span></td><td><span class="bdg b-done">Completed</span></td><td style="font-size:11px;color:var(--muted)">Mar 5</td><td><select class="fi" style="width:130px;padding:4px 8px;font-size:11px"><option>Completed</option><option>In Progress</option></select></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-employee-leave">
+    <div class="sec-title">📅 Apply for Leave</div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">New Leave Application</div></div><div class="cb">
+        <div class="form-row"><div><div class="fl">Leave Type</div><select class="fi"><option>Casual Leave</option><option>Sick Leave</option><option>Earned Leave</option></select></div><div><div class="fl">Number of Days</div><input class="fi" type="number" value="3" readonly/></div></div>
+        <div class="form-row"><div><div class="fl">From Date</div><input class="fi" type="date" value="2026-03-10"/></div><div><div class="fl">To Date</div><input class="fi" type="date" value="2026-03-12"/></div></div>
+        <div class="form-row1"><div class="fl">Reason</div><textarea class="fi" rows="3" style="resize:none">Family function</textarea></div>
+        <button class="btn-b" style="width:100%">Submit Leave Request</button>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">Leave Balance</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>Casual Leave</span><span style="color:#58a6ff">8 / 12 days</span></div><div class="pb"><div class="pf" style="width:66%;background:#58a6ff"></div></div></div>
+        <div class="pw"><div class="pl"><span>Sick Leave</span><span style="color:#3fb950">9 / 10 days</span></div><div class="pb"><div class="pf" style="width:90%;background:#3fb950"></div></div></div>
+        <div class="pw"><div class="pl"><span>Earned Leave</span><span style="color:#a371f7">15 / 20 days</span></div><div class="pb"><div class="pf" style="width:75%;background:#a371f7"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-employee-leavehist">
+    <div class="sec-title">📋 Leave History</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Manager</th><th>HR</th><th>Final Status</th></tr></thead>
+      <tbody>
+        <tr><td style="font-size:11px">Casual</td><td style="font-size:11px">Mar 10</td><td style="font-size:11px">Mar 12</td><td style="font-size:11px">3</td><td style="font-size:11px;color:var(--muted)">Family function</td><td><span class="bdg b-approved">✅</span></td><td><span class="bdg b-pending">⏳</span></td><td><span class="bdg b-pending">Pending HR</span></td></tr>
+        <tr><td style="font-size:11px">Sick</td><td style="font-size:11px">Feb 20</td><td style="font-size:11px">Feb 20</td><td style="font-size:11px">1</td><td style="font-size:11px;color:var(--muted)">Fever</td><td><span class="bdg b-approved">✅</span></td><td><span class="bdg b-approved">✅</span></td><td><span class="bdg b-approved">Approved</span></td></tr>
+        <tr><td style="font-size:11px">Earned</td><td style="font-size:11px">Jan 5</td><td style="font-size:11px">Jan 8</td><td style="font-size:11px">4</td><td style="font-size:11px;color:var(--muted)">Vacation</td><td><span class="bdg b-rejected">❌</span></td><td><span class="bdg b-none">—</span></td><td><span class="bdg b-rejected">Rejected</span></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-employee-payslip">
+    <div class="sec-title">💰 My Payslip</div>
+    <div style="max-width:500px">
+      <div class="payslip">
+        <div class="payslip-header"><div><div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700">John Doe</div><div style="font-size:11px;color:var(--muted)">Employee · Engineering</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700;color:#a371f7">March 2026</div><div style="font-size:10px;color:var(--muted)">Generated Mar 1, 2026</div></div></div>
+        <div class="payslip-row"><span>Basic Salary</span><span style="color:#3fb950">₹55,000</span></div>
+        <div class="payslip-row"><span>HRA</span><span style="color:#3fb950">₹5,000</span></div>
+        <div class="payslip-row"><span style="color:var(--muted)">Gross Total</span><span style="color:var(--text)">₹60,000</span></div>
+        <div class="payslip-row"><span style="color:#f85149">PF Deduction</span><span style="color:#f85149">-₹5,000</span></div>
+        <div class="payslip-row"><span style="color:#f85149">Tax</span><span style="color:#f85149">-₹2,000</span></div>
+        <div class="payslip-total"><div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Net Salary</div><div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#a371f7">₹48,000</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-employee-profile">
+    <div class="sec-title">👤 My Profile</div>
+    <div class="profile-header">
+      <div class="profile-av" style="background:#1f3958;color:#58a6ff;width:64px;height:64px;font-size:24px">J</div>
+      <div><div class="profile-name">John Doe</div><div class="profile-role">Employee · Engineering Department</div><div style="margin-top:8px"><span class="bdg b-active">Active</span></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">Personal Info</div></div><div class="cb">
+        <div class="form-row"><div><div class="fl">Full Name</div><input class="fi" value="John Doe"/></div><div><div class="fl">Username</div><input class="fi" value="john.doe" readonly/></div></div>
+        <div class="form-row"><div><div class="fl">Email</div><input class="fi" value="john@company.com"/></div><div><div class="fl">Joining Date</div><input class="fi" value="Jan 15, 2024" readonly/></div></div>
+        <div class="form-row"><div><div class="fl">Department</div><input class="fi" value="Engineering" readonly/></div><div><div class="fl">Manager</div><input class="fi" value="Mike George" readonly/></div></div>
+        <button class="btn-b">Save Changes</button>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">Change Password</div></div><div class="cb">
+        <div class="form-row1"><div class="fl">Current Password</div><input class="fi" type="password" placeholder="••••••••"/></div>
+        <div class="form-row1"><div class="fl">New Password</div><input class="fi" type="password" placeholder="••••••••"/></div>
+        <div class="form-row1"><div class="fl">Confirm Password</div><input class="fi" type="password" placeholder="••••••••"/></div>
+        <button class="btn-b">Update Password</button>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ████████ HR PAGES ████████ -->
+  <div class="page" id="page-hr-dashboard">
+    <div class="sg">
+      <div class="sc blue"><div class="slbl">Total Employees</div><div class="sval">48</div><div class="schg">Active accounts</div><div class="sic">👥</div></div>
+      <div class="sc red"><div class="slbl">Leave (Stage 2)</div><div class="sval">4</div><div class="schg">Needs HR approval</div><div class="sic">📅</div></div>
+      <div class="sc green"><div class="slbl">Approved This Month</div><div class="sval">11</div><div class="schg up">Leave requests</div><div class="sic">✅</div></div>
+      <div class="sc orange"><div class="slbl">Rejected</div><div class="sval">3</div><div class="schg">This month</div><div class="sic">❌</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">📅 Pending Final Approvals</div><div class="ca" onclick="gotoPage('hr','leave')">View All</div></div><div class="cb">
+        <div class="pi"><div class="av" style="background:#1f3958;color:#58a6ff">J</div><div><div class="pi-name">John Doe — Casual (3 days)</div><div class="pi-sub" style="color:#3fb950">✅ Manager approved</div></div><div class="pi-actions"><button class="btn-g">✓ Final</button><button class="btn-r">✗</button></div></div>
+        <div class="pi"><div class="av" style="background:#2d1f3a;color:#a371f7">M</div><div><div class="pi-name">Meera Singh — Earned (4 days)</div><div class="pi-sub" style="color:#3fb950">✅ Manager approved</div></div><div class="pi-actions"><button class="btn-g">✓ Final</button><button class="btn-r">✗</button></div></div>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">Leave Stats</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>Approved</span><span style="color:#3fb950">11</span></div><div class="pb"><div class="pf" style="width:73%;background:#3fb950"></div></div></div>
+        <div class="pw"><div class="pl"><span>Pending</span><span style="color:#e3b341">4</span></div><div class="pb"><div class="pf" style="width:26%;background:#e3b341"></div></div></div>
+        <div class="pw"><div class="pl"><span>Rejected</span><span style="color:#f85149">3</span></div><div class="pb"><div class="pf" style="width:20%;background:#f85149"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-hr-employees">
+    <div class="sec-title">👥 Employee Records</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Role</th><th>Manager</th><th>Joining</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><span class="av" style="background:#1f3958;color:#58a6ff">J</span>John Doe</td><td style="font-size:10px;color:var(--muted)">john@co.com</td><td style="font-size:11px">Eng</td><td><span class="bdg b-progress">Employee</span></td><td style="font-size:11px;color:var(--muted)">Mike G.</td><td style="font-size:11px;color:var(--muted)">Jan 2024</td><td><span class="bdg b-active">Active</span></td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+        <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950">S</span>Sara Patel</td><td style="font-size:10px;color:var(--muted)">sara@co.com</td><td style="font-size:11px">Sales</td><td><span class="bdg b-progress">Employee</span></td><td style="font-size:11px;color:var(--muted)">Neha R.</td><td style="font-size:11px;color:var(--muted)">Mar 2023</td><td><span class="bdg b-active">Active</span></td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+        <tr><td><span class="av" style="background:#2d1f0e;color:#d97706">M</span>Mike George</td><td style="font-size:10px;color:var(--muted)">mike@co.com</td><td style="font-size:11px">Eng</td><td><span class="bdg b-pending">Manager</span></td><td style="font-size:11px;color:var(--muted)">—</td><td style="font-size:11px;color:var(--muted)">Jun 2021</td><td><span class="bdg b-active">Active</span></td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">View</button></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-hr-leave">
+    <div class="sec-title">📅 Leave Approvals — Stage 2 (Final)</div>
+    <div class="card"><div class="cb">
+      <div class="pi"><div class="av" style="background:#1f3958;color:#58a6ff">J</div><div><div class="pi-name">John Doe</div><div class="pi-sub">Casual · Mar 10–12 · 3 days · Manager: Mike G. ✅ Approved</div></div><div class="pi-actions"><button class="btn-g">✓ Final Approve</button><button class="btn-r">✗ Reject</button></div></div>
+      <div class="pi"><div class="av" style="background:#2d1f3a;color:#a371f7">M</div><div><div class="pi-name">Meera Singh</div><div class="pi-sub">Earned · Mar 15–18 · 4 days · Manager: Neha R. ✅ Approved</div></div><div class="pi-actions"><button class="btn-g">✓ Final Approve</button><button class="btn-r">✗ Reject</button></div></div>
+      <div class="pi"><div class="av" style="background:#1f3a1f;color:#3fb950">A</div><div><div class="pi-name">Asha Menon</div><div class="pi-sub">Sick · Mar 9 · 1 day · Manager: Mike G. ✅ Approved</div></div><div class="pi-actions"><button class="btn-g">✓ Final Approve</button><button class="btn-r">✗ Reject</button></div></div>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-hr-attendance">
+    <div class="sec-title">📊 Attendance Reports</div>
+    <div class="card"><div class="cb">
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <select class="fi" style="width:150px">optionMarch 2026</select>
+        <select class="fi" style="width:150px"><option>All Departments</option><option>Engineering</option><option>Sales</option></select>
+        <button class="btn-b">Generate Report</button>
+      </div>
+      <table class="tbl"><thead><tr><th>Employee</th><th>Dept</th><th>Present</th><th>Absent</th><th>Leave</th><th>Total Days</th><th>Attendance %</th></tr></thead>
+      <tbody>
+        <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">JD</span>John D.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td style="color:#3fb950;font-size:12px">19</td><td style="color:#f85149;font-size:12px">1</td><td style="color:#e3b341;font-size:12px">3</td><td style="font-size:12px">23</td><td><span class="bdg b-approved">82%</span></td></tr>
+        <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">SP</span>Sara P.</td><td style="font-size:11px;color:var(--muted)">Sales</td><td style="color:#3fb950;font-size:12px">22</td><td style="color:#f85149;font-size:12px">0</td><td style="color:#e3b341;font-size:12px">1</td><td style="font-size:12px">23</td><td><span class="bdg b-approved">95%</span></td></tr>
+        <tr><td><span class="av" style="background:#2d1f3a;color:#a371f7;font-size:9px">RK</span>Raj K.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td style="color:#3fb950;font-size:12px">18</td><td style="color:#f85149;font-size:12px">3</td><td style="color:#e3b341;font-size:12px">2</td><td style="font-size:12px">23</td><td><span class="bdg b-pending">78%</span></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <!-- ████████ ACCOUNTANT PAGES ████████ -->
+  <div class="page" id="page-accountant-dashboard">
+    <div class="sg">
+      <div class="sc purple"><div class="slbl">Total Payroll</div><div class="sval">₹24L</div><div class="schg">March 2026</div><div class="sic">💰</div></div>
+      <div class="sc green"><div class="slbl">Payslips Generated</div><div class="sval">48</div><div class="schg up">All done</div><div class="sic">✅</div></div>
+      <div class="sc blue"><div class="slbl">Avg Salary</div><div class="sval">₹51K</div><div class="schg">Per employee</div><div class="sic">📊</div></div>
+      <div class="sc red"><div class="slbl">Total Deductions</div><div class="sval">₹3.2L</div><div class="schg">This month</div><div class="sic">📉</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">💰 March 2026 Payroll</div><div class="ca" onclick="gotoPage('accountant','payroll')">View All</div></div><div class="cb">
+        <div class="ps"><div class="pc"><div class="pl2">Gross</div><div class="pv" style="color:#3fb950">₹27.2L</div></div><div class="pc"><div class="pl2">Deductions</div><div class="pv" style="color:#f85149">₹3.2L</div></div><div class="pc"><div class="pl2">Net Pay</div><div class="pv" style="color:#a371f7">₹24L</div></div></div>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">🏢 Dept. Breakdown</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>Engineering</span><span style="color:#58a6ff">₹11.2L</span></div><div class="pb"><div class="pf" style="width:80%;background:#58a6ff"></div></div></div>
+        <div class="pw"><div class="pl"><span>Finance</span><span style="color:#a371f7">₹7.8L</span></div><div class="pb"><div class="pf" style="width:58%;background:#a371f7"></div></div></div>
+        <div class="pw"><div class="pl"><span>HR</span><span style="color:#f43f5e">₹3.1L</span></div><div class="pb"><div class="pf" style="width:28%;background:#f43f5e"></div></div></div>
+        <div class="pw"><div class="pl"><span>Sales</span><span style="color:#3fb950">₹1.9L</span></div><div class="pb"><div class="pf" style="width:18%;background:#3fb950"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-accountant-payroll">
+    <div class="sec-title">💰 Payroll — March 2026</div>
+    <div class="card"><div class="cb">
+      <table class="tbl"><thead><tr><th>Employee</th><th>Dept</th><th>Basic</th><th>HRA</th><th>Gross</th><th>Deductions</th><th>Net Salary</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><span class="av" style="background:#1f3958;color:#58a6ff;font-size:9px">JD</span>John D.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td style="color:#3fb950;font-size:12px">₹55K</td><td style="color:#3fb950;font-size:12px">₹5K</td><td style="font-size:12px">₹60K</td><td style="color:#f85149;font-size:12px">₹7K</td><td style="color:#a371f7;font-weight:700;font-size:12px">₹48K</td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button></td></tr>
+        <tr><td><span class="av" style="background:#1f3a1f;color:#3fb950;font-size:9px">SP</span>Sara P.</td><td style="font-size:11px;color:var(--muted)">Sales</td><td style="color:#3fb950;font-size:12px">₹48K</td><td style="color:#3fb950;font-size:12px">₹4K</td><td style="font-size:12px">₹52K</td><td style="color:#f85149;font-size:12px">₹6K</td><td style="color:#a371f7;font-weight:700;font-size:12px">₹42K</td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button></td></tr>
+        <tr><td><span class="av" style="background:#2d1f0e;color:#d97706;font-size:9px">MG</span>Mike G.</td><td style="font-size:11px;color:var(--muted)">Eng</td><td style="color:#3fb950;font-size:12px">₹75K</td><td style="color:#3fb950;font-size:12px">₹8K</td><td style="font-size:12px">₹83K</td><td style="color:#f85149;font-size:12px">₹9K</td><td style="color:#a371f7;font-weight:700;font-size:12px">₹66K</td><td><button class="btn-outline" style="padding:3px 10px;font-size:11px">Edit</button></td></tr>
+      </tbody></table>
+    </div></div>
+  </div>
+
+  <div class="page" id="page-accountant-generate">
+    <div class="sec-title">➕ Generate Payslip</div>
+    <div style="max-width:500px">
+      <div class="card"><div class="ch"><div class="ct">New Payslip</div></div><div class="cb">
+        <div class="form-row1"><div class="fl">Select Employee</div><select class="fi"><option>John Doe — Engineering</option><option>Sara Patel — Sales</option><option>Raj Kumar — Engineering</option></select></div>
+        <div class="form-row1"><div class="fl">Month</div><select class="fi"><option>March 2026</option><option>February 2026</option><option>January 2026</option></select></div>
+        <div class="form-row"><div><div class="fl">Basic Salary (₹)</div><input class="fi" type="number" value="55000"/></div><div><div class="fl">HRA (₹)</div><input class="fi" type="number" value="5000"/></div></div>
+        <div class="form-row"><div><div class="fl">PF Deduction (₹)</div><input class="fi" type="number" value="5000"/></div><div><div class="fl">Tax (₹)</div><input class="fi" type="number" value="2000"/></div></div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:14px;border:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--muted)">Gross Total</span><span>₹60,000</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span style="color:var(--muted)">Total Deductions</span><span style="color:#f85149">-₹7,000</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span>Net Salary</span><span style="color:#a371f7">₹48,000</span></div>
+        </div>
+        <button class="btn-b" style="width:100%">Generate & Save Payslip</button>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-accountant-reports">
+    <div class="sec-title">📊 Payroll Reports</div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">Monthly Summary</div></div><div class="cb">
+        <table class="tbl"><thead><tr><th>Month</th><th>Employees</th><th>Gross</th><th>Deductions</th><th>Net</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:12px">Mar 2026</td><td style="font-size:12px">48</td><td style="color:#3fb950;font-size:12px">₹27.2L</td><td style="color:#f85149;font-size:12px">₹3.2L</td><td style="color:#a371f7;font-size:12px;font-weight:700">₹24L</td></tr>
+          <tr><td style="font-size:12px">Feb 2026</td><td style="font-size:12px">46</td><td style="color:#3fb950;font-size:12px">₹26.1L</td><td style="color:#f85149;font-size:12px">₹3L</td><td style="color:#a371f7;font-size:12px;font-weight:700">₹23.1L</td></tr>
+          <tr><td style="font-size:12px">Jan 2026</td><td style="font-size:12px">44</td><td style="color:#3fb950;font-size:12px">₹25L</td><td style="color:#f85149;font-size:12px">₹2.8L</td><td style="color:#a371f7;font-size:12px;font-weight:700">₹22.2L</td></tr>
+        </tbody></table>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">Department Breakdown</div></div><div class="cb">
+        <div class="pw"><div class="pl"><span>Engineering</span><span style="color:#58a6ff">₹11.2L</span></div><div class="pb"><div class="pf" style="width:80%;background:#58a6ff"></div></div></div>
+        <div class="pw"><div class="pl"><span>Finance</span><span style="color:#a371f7">₹7.8L</span></div><div class="pb"><div class="pf" style="width:56%;background:#a371f7"></div></div></div>
+        <div class="pw"><div class="pl"><span>HR</span><span style="color:#f43f5e">₹3.1L</span></div><div class="pb"><div class="pf" style="width:22%;background:#f43f5e"></div></div></div>
+        <div class="pw"><div class="pl"><span>Sales</span><span style="color:#3fb950">₹1.9L</span></div><div class="pb"><div class="pf" style="width:14%;background:#3fb950"></div></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const roleConfig = {
+  admin:      { name:'Alex Kumar',   role:'Admin',      color:'#58a6ff', bg:'#1f3958', letter:'A', pages:['dashboard','pending','users','departments','tasks','leave','payroll','audit'], labels:['Dashboard','Pending Approvals','Manage Users','Departments','All Tasks','Leave Requests','Payroll','Audit Logs'] },
+  manager:    { name:'Mike George',  role:'Manager',    color:'#d97706', bg:'#2d1f0e', letter:'M', pages:['dashboard','team','tasks','leave','reports'], labels:['Dashboard','My Team','Tasks','Leave Approvals','Reports'] },
+  employee:   { name:'John Doe',     role:'Employee',   color:'#10b981', bg:'#0e2d1a', letter:'J', pages:['dashboard','tasks','leave','leavehist','payslip','profile'], labels:['Dashboard','My Tasks','Apply Leave','Leave History','My Payslip','My Profile'] },
+  hr:         { name:'Sneha Kumar',  role:'HR',         color:'#f43f5e', bg:'#2d0e18', letter:'S', pages:['dashboard','employees','leave','attendance'], labels:['Dashboard','Employee Records','Leave Approvals','Attendance'] },
+  accountant: { name:'Anita Chawla', role:'Accountant', color:'#8b5cf6', bg:'#1a0e2d', letter:'A', pages:['dashboard','payroll','generate','reports'], labels:['Dashboard','Payroll','Generate Payslip','Reports'] }
+};
+
+let currentRole = 'admin';
+let currentPage = 'dashboard';
+
+function switchRole(role) {
+  currentRole = role;
+  currentPage = 'dashboard';
+
+  // Role buttons
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-role="${role}"]`).classList.add('active');
+
+  // Nav
+  document.querySelectorAll('[id^="nav-"]').forEach(n => n.style.display = 'none');
+  document.getElementById(`nav-${role}`).style.display = 'block';
+
+  // User info
+  const r = roleConfig[role];
+  document.getElementById('uav').textContent = r.letter;
+  document.getElementById('uav').style.color = r.color;
+  document.getElementById('uav').style.background = r.bg;
+  document.getElementById('uname').textContent = r.name;
+  document.getElementById('urole').textContent = r.role;
+
+  // Page tabs
+  const tabs = document.getElementById('page-tabs');
+  tabs.innerHTML = '';
+  r.pages.forEach((pg, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'role-btn' + (pg === 'dashboard' ? ' active' : '');
+    btn.style.fontSize = '10px';
+    btn.textContent = r.labels[i];
+    btn.onclick = () => gotoPage(role, pg);
+    tabs.appendChild(btn);
+  });
+
+  gotoPage(role, 'dashboard');
+}
+
+function gotoPage(role, page) {
+  currentPage = page;
+
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  // Show target
+  const target = document.getElementById(`page-${role}-${page}`);
+  if (target) target.classList.add('active');
+
+  // Update nav items
+  document.querySelectorAll(`#nav-${role} .ni`).forEach(ni => ni.classList.remove('active'));
+  const navItems = document.querySelectorAll(`#nav-${role} .ni`);
+  const r = roleConfig[role];
+  const idx = r.pages.indexOf(page);
+  if (navItems[idx]) navItems[idx].classList.add('active');
+
+  // Update page tabs
+  document.querySelectorAll('#page-tabs .role-btn').forEach((b, i) => {
+    b.classList.toggle('active', r.pages[i] === page);
+  });
+
+  // Update topbar
+  const pageLabels = { dashboard:'Dashboard', pending:'Pending Approvals', users:'Manage Users', departments:'Departments', tasks:'Tasks', leave:'Leave', payroll:'Payroll', audit:'Audit Logs', team:'My Team', reports:'Reports', employees:'Employee Records', attendance:'Attendance Reports', leavehist:'Leave History', payslip:'My Payslip', profile:'My Profile', generate:'Generate Payslip' };
+  document.getElementById('tbtitle').textContent = `${r.role} — ${pageLabels[page] || page}`;
+  document.getElementById('tbsub').textContent = `${r.name} · ${r.role}`;
+}
+
+// Init
+switchRole('admin');
+</script>
+</body>
+</html>

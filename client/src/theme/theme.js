@@ -2,52 +2,121 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
     palette: {
+        mode: 'dark',
         primary: {
-            main: '#1a237e', // Indigo 900
-            light: '#534bae',
-            dark: '#000051',
-            contrastText: '#fff',
+            main: '#58a6ff', // GitHub Blue
+            light: '#79c0ff',
+            dark: '#1f6feb',
+            contrastText: '#ffffff',
         },
         secondary: {
-            main: '#c2185b', // Pink 700
-            light: '#fa5788',
-            dark: '#8c0032',
+            main: '#f43f5e', // Rose
             contrastText: '#fff',
         },
         background: {
-            default: '#f4f6f8',
-            paper: '#ffffff',
+            default: '#07090e', // Deeper Dark BG
+            paper: '#0d1117',   // Surface color
         },
         text: {
-            primary: '#263238',
-            secondary: '#546e7a',
+            primary: '#f0f6fc',
+            secondary: '#8b949e',
         },
+        divider: '#21262d',
+        success: { main: '#3fb950' },
+        warning: { main: '#d29922' },
+        error: { main: '#f85149' },
+        info: { main: '#58a6ff' },
+        // Custom Role Colors
+        roles: {
+            admin: '#58a6ff',
+            manager: '#d29922',
+            employee: '#3fb950',
+            hr: '#f43f5e',
+            accountant: '#a371f7'
+        }
     },
     typography: {
-        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-        h1: { fontSize: '2.5rem', fontWeight: 600 },
-        h2: { fontSize: '2rem', fontWeight: 600 },
-        h3: { fontSize: '1.75rem', fontWeight: 600 },
-        h4: { fontSize: '1.5rem', fontWeight: 600 },
-        h5: { fontSize: '1.25rem', fontWeight: 600 },
-        h6: { fontSize: '1rem', fontWeight: 600 },
-        button: { textTransform: 'none', fontWeight: 510 },
+        fontFamily: '"Manrope", sans-serif',
+        h1: { fontFamily: 'Syne, sans-serif', fontWeight: 800 },
+        h2: { fontFamily: 'Syne, sans-serif', fontWeight: 800 },
+        h3: { fontFamily: 'Syne, sans-serif', fontWeight: 700 },
+        h4: { fontFamily: 'Syne, sans-serif', fontWeight: 700 },
+        h5: { fontFamily: 'Syne, sans-serif', fontWeight: 700 },
+        h6: { fontFamily: 'Syne, sans-serif', fontWeight: 700 },
+        button: { textTransform: 'none', fontWeight: 600 },
     },
     shape: {
-        borderRadius: 8,
+        borderRadius: 10,
     },
     components: {
         MuiButton: {
             styleOverrides: {
                 root: {
-                    padding: '8px 16px',
+                    borderRadius: 8,
+                    padding: '6px 16px',
+                    fontWeight: 600,
+                },
+                contained: {
+                    boxShadow: 'none',
+                    '&:hover': {
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                        transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                },
+            },
+        },
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    backgroundImage: 'none',
+                    border: '1px solid #30363d',
                 },
             },
         },
         MuiCard: {
             styleOverrides: {
                 root: {
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                    boxShadow: 'none',
+                    border: '1px solid #30363d',
+                    backgroundColor: '#161b22',
+                    transition: 'border-color 0.2s ease-in-out',
+                    '&:hover': {
+                        borderColor: '#444c56',
+                    }
+                },
+            },
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    borderBottom: '1px solid #30363d',
+                    padding: '12px 16px',
+                },
+                head: {
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.05rem',
+                    color: '#7d8590',
+                }
+            }
+        },
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: 'rgba(13, 17, 23, 0.8)',
+                    backdropFilter: 'blur(12px)',
+                    borderBottom: '1px solid #30363d',
+                    boxShadow: 'none',
+                },
+            },
+        },
+        MuiDrawer: {
+            styleOverrides: {
+                paper: {
+                    backgroundColor: '#161b22',
+                    borderRight: '1px solid #30363d',
                 },
             },
         },

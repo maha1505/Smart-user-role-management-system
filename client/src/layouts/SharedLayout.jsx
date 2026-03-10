@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -18,21 +18,31 @@ import {
     Menu,
     MenuItem,
     Tooltip,
+    InputBase,
+    Badge,
+    Paper,
 } from '@mui/material';
 import {
     Menu as MenuIcon,
-    Dashboard as DashboardIcon,
+    Home as HomeIcon,
     People as PeopleIcon,
-    Assignment as TaskIcon,
-    DateRange as LeaveIcon,
-    AccountBalanceWallet as PayrollIcon,
-    History as AuditIcon,
-    Logout as LogoutIcon,
+    TaskAlt as TaskIcon,
+    Event as LeaveIcon,
+    Payments as PayrollIcon,
+    ManageSearch as AuditIcon,
+    HourglassTop as PendingIcon,
+    CorporateFare as DeptIcon,
+    Search as SearchIcon,
+    NotificationsNone as NotificationIcon,
     Settings as SettingsIcon,
+    Logout as LogoutIcon,
+    Assessment as ReportsIcon,
+    AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
 import { logout } from '../store/store';
+import API from '../api/api';
 
-const drawerWidth = 260;
+const drawerWidth = 210;
 
 const SharedLayout = ({ children }) => {
     const { user } = useSelector((state) => state.auth);
@@ -41,6 +51,29 @@ const SharedLayout = ({ children }) => {
     const location = useLocation();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [sidebarAnchorEl, setSidebarAnchorEl] = useState(null);
+    const [pendingCount, setPendingCount] = useState(0);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (user?.role === 'admin') {
+                try {
+                    const { data } = await API.get('/users/stats');
+                    setPendingCount(data.stats.pendingApprovalsCount);
+                } catch (err) {
+                    console.error('Failed to fetch stats for badge', err);
+                }
+            } else if (user?.role === 'hr') {
+                try {
+                    const { data } = await API.get('/users/hr-stats');
+                    setPendingCount(data.stats.pendingLeavesCount || 0);
+                } catch (err) {
+                    console.error('Failed to fetch HR stats for badge', err);
+                }
+            }
+        };
+        fetchStats();
+    }, [user, location.pathname]);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -52,6 +85,11 @@ const SharedLayout = ({ children }) => {
 
     const handleMenuClose = () => {
         setAnchorEl(null);
+        setSidebarAnchorEl(null);
+    };
+
+    const handleSidebarMenuOpen = (event) => {
+        setSidebarAnchorEl(event.currentTarget);
     };
 
     const handleLogout = () => {
@@ -59,54 +97,245 @@ const SharedLayout = ({ children }) => {
         navigate('/login');
     };
 
-    const menuItems = [
-        { text: 'Dashboard', icon: <DashboardIcon />, path: `/${user?.role}`, roles: ['admin', 'manager', 'employee', 'hr', 'accountant'] },
-        { text: 'User Management', icon: <PeopleIcon />, path: '/admin/users', roles: ['admin'] },
-        { text: 'Tasks', icon: <TaskIcon />, path: `/${user?.role}/tasks`, roles: ['admin', 'manager', 'employee'] },
-        { text: 'Leave Management', icon: <LeaveIcon />, path: `/${user?.role}/leaves`, roles: ['admin', 'manager', 'employee', 'hr'] },
-        { text: 'Payroll', icon: <PayrollIcon />, path: `/${user?.role}/payroll`, roles: ['admin', 'accountant', 'employee'] },
-        { text: 'Audit Logs', icon: <AuditIcon />, path: '/admin/logs', roles: ['admin'] },
+    const adminNav = [
+        {
+            label: 'Main', items: [
+                { text: 'Dashboard', icon: <HomeIcon fontSize="small" />, path: '/admin' },
+                { text: 'Pending Approvals', icon: <PendingIcon fontSize="small" />, path: '/admin/pending', badge: pendingCount },
+                { text: 'Manage Users', icon: <PeopleIcon fontSize="small" />, path: '/admin/users' },
+                { text: 'Departments', icon: <DeptIcon fontSize="small" />, path: '/admin/departments' },
+            ]
+        },
+        {
+            label: 'Modules', items: [
+                { text: 'All Tasks', icon: <TaskIcon fontSize="small" />, path: '/admin/tasks' },
+                { text: 'Leave Requests', icon: <LeaveIcon fontSize="small" />, path: '/admin/leaves' },
+                { text: 'Payroll', icon: <PayrollIcon fontSize="small" />, path: '/admin/payroll' },
+                { text: 'Audit Logs', icon: <AuditIcon fontSize="small" />, path: '/admin/logs' },
+            ]
+        }
     ];
 
-    const filteredMenu = menuItems.filter(item => item.roles.includes(user?.role));
+    const managerNav = [
+        {
+            label: '', items: [
+                { text: 'Dashboard', icon: <HomeIcon fontSize="small" />, path: '/manager' },
+                { text: 'My Team', icon: <PeopleIcon fontSize="small" />, path: '/manager/team' },
+                { text: 'Tasks', icon: <TaskIcon fontSize="small" />, path: '/manager/tasks' },
+                { text: 'Leave Approvals', icon: <LeaveIcon fontSize="small" />, path: '/manager/leaves' },
+                { text: 'Reports', icon: <ReportsIcon fontSize="small" />, path: '/manager/reports' },
+            ]
+        }
+    ];
+
+    const employeeNav = [
+        {
+            label: 'Main', items: [
+                { text: 'Dashboard', icon: <HomeIcon fontSize="small" />, path: '/employee' },
+                { text: 'My Tasks', icon: <TaskIcon fontSize="small" />, path: '/employee/tasks' },
+                // { text: 'Apply Leave', icon: <LeaveIcon fontSize="small" />, path: '/employee/leave' },
+                { text: 'Leave History', icon: <AuditIcon fontSize="small" />, path: '/employee/leaves' },
+                { text: 'My Payslip', icon: <PayrollIcon fontSize="small" />, path: '/employee/payroll' },
+                // { text: 'My Profile', icon: <ProfileIcon fontSize="small" />, path: '/employee/profile' },
+            ]
+        }
+    ];
+
+    const hrNav = [
+        {
+            label: 'Main', items: [
+                { text: 'Dashboard', icon: <HomeIcon fontSize="small" />, path: '/hr' },
+                { text: 'Employee Records', icon: <PeopleIcon fontSize="small" />, path: '/hr/employees' },
+                { text: 'Leave Approvals', icon: <LeaveIcon fontSize="small" />, path: '/hr/leaves', badge: pendingCount },
+                // { text: 'Attendance Reports', icon: <ReportsIcon fontSize="small" />, path: '/hr/attendance' },
+            ]
+        }
+    ];
+
+    const accountantNav = [
+        {
+            label: 'Main', items: [
+                { text: 'Dashboard', icon: <HomeIcon fontSize="small" sx={{ color: '#d29922' }} />, path: '/accountant' },
+                { text: 'Payroll', icon: <PayrollIcon fontSize="small" sx={{ color: '#f85149' }} />, path: '/accountant/payroll' },
+                { text: 'Generate Payslip', icon: <TaskIcon fontSize="small" sx={{ color: '#8957e5' }} />, path: '/accountant/generate' },
+                { text: 'Reports', icon: <ReportsIcon fontSize="small" sx={{ color: '#3fb950' }} />, path: '/accountant/reports' },
+            ]
+        }
+    ];
+
+    const getNavConfig = () => {
+        switch (user?.role) {
+            case 'admin': return adminNav;
+            case 'manager': return managerNav;
+            case 'employee': return employeeNav;
+            case 'hr': return hrNav;
+            case 'accountant': return accountantNav;
+            default: return [];
+        }
+    };
+
+    const activeNav = getNavConfig();
 
     const drawer = (
-        <Box>
-            <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 2 }}>
-                <Typography variant="h6" color="primary" sx={{ fontWeight: 800, letterSpacing: 1 }}>
-                    SMART ROLE
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ p: '16px', borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle1" sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '15px' }}>
+                    HR<span style={{ color: '#58a6ff' }}>Portal</span>
                 </Typography>
-            </Toolbar>
-            <Divider />
-            <List sx={{ px: 1.5, py: 2 }}>
-                {filteredMenu.map((item) => (
-                    <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
-                        <ListItemButton
-                            onClick={() => {
-                                navigate(item.path);
-                                setMobileOpen(false);
-                            }}
-                            selected={location.pathname === item.path}
-                            sx={{
-                                borderRadius: 2,
-                                '&.Mui-selected': {
-                                    backgroundColor: 'primary.main',
-                                    color: 'white',
-                                    '&:hover': { backgroundColor: 'primary.dark' },
-                                    '& .MuiListItemIcon-root': { color: 'white' },
-                                },
-                            }}
-                        >
-                            <ListItemIcon sx={{ color: location.pathname === item.path ? 'white' : 'inherit', minWidth: 40 }}>
-                                {item.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: 500 }} />
-                        </ListItemButton>
-                    </ListItem>
+                <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 1, textTransform: 'uppercase', fontSize: '9px' }}>
+                    Role Management
+                </Typography>
+            </Box>
+
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', py: 2 }}>
+                {activeNav.map((section) => (
+                    <Box key={section.label} sx={{ mb: section.label ? 2 : 0 }}>
+                        {section.label && (
+                            <Typography variant="caption" sx={{ px: '18px', display: 'block', mb: 0.5, color: 'text.secondary', fontWeight: 600, fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+                                {section.label}
+                            </Typography>
+                        )}
+                        <List sx={{ px: '10px' }}>
+                            {section.items.map((item) => (
+                                <ListItem key={item.text} disablePadding sx={{ mb: '2px' }}>
+                                    <ListItemButton
+                                        onClick={() => {
+                                            navigate(item.path);
+                                            setMobileOpen(false);
+                                        }}
+                                        selected={location.pathname === item.path}
+                                        sx={{
+                                            borderRadius: '8px',
+                                            py: '8px',
+                                            px: '12px',
+                                            transition: 'all 0.2s ease',
+                                            position: 'relative',
+                                            '&.Mui-selected': {
+                                                backgroundColor: 'rgba(56, 139, 253, 0.1)',
+                                                color: '#f0f6fc',
+                                                '&:hover': { backgroundColor: 'rgba(56, 139, 253, 0.15)' },
+                                                '& .MuiListItemIcon-root': { color: '#58a6ff' },
+                                                '&::before': {
+                                                    content: '""',
+                                                    position: 'absolute',
+                                                    left: -10,
+                                                    top: '20%',
+                                                    height: '60%',
+                                                    width: '4px',
+                                                    backgroundColor: '#58a6ff',
+                                                    borderRadius: '0 4px 4px 0'
+                                                }
+                                            },
+                                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.03)' }
+                                        }}
+                                    >
+                                        <ListItemIcon sx={{ minWidth: '28px', color: 'text.secondary' }}>
+                                            {item.icon}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={item.text}
+                                            primaryTypographyProps={{ fontSize: '12px', fontWeight: 500, color: 'inherit' }}
+                                        />
+                                        {item.badge > 0 && (
+                                            <Box sx={{
+                                                ml: 'auto',
+                                                bgcolor: '#f85149',
+                                                color: '#fff',
+                                                fontSize: '9px',
+                                                fontWeight: 800,
+                                                minWidth: '16px',
+                                                height: '16px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                borderRadius: '50%',
+                                                lineHeight: 1
+                                            }}>
+                                                {item.badge}
+                                            </Box>
+                                        )}
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </Box>
                 ))}
-            </List>
+            </Box>
+
+            <Box
+                onClick={handleSidebarMenuOpen}
+                sx={{
+                    p: '12px 16px',
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    '&:hover': { bgcolor: 'rgba(255,255,255, 0.05)' }
+                }}
+            >
+                <Avatar
+                    sx={{
+                        width: 30,
+                        height: 30,
+                        bgcolor: `${theme => theme.palette.roles?.[user?.role] || '#1f3958'}22`,
+                        color: theme => theme.palette.roles?.[user?.role] || '#58a6ff',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        border: '1px solid',
+                        borderColor: theme => `${theme.palette.roles?.[user?.role] || '#58a6ff'}44`
+                    }}
+                >
+                    {user?.name?.[0]}
+                </Avatar>
+                <Box sx={{ flexGrow: 1 }}>
+                    <Typography sx={{ fontSize: '11px', fontWeight: 600 }}>{user?.name}</Typography>
+                    <Typography sx={{ fontSize: '9px', color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{user?.role}</Typography>
+                </Box>
+                <LogoutIcon sx={{ fontSize: '14px', color: 'text.secondary', opacity: 0.6 }} />
+            </Box>
+
+            <Menu
+                anchorEl={sidebarAnchorEl}
+                open={Boolean(sidebarAnchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                PaperProps={{
+                    sx: {
+                        bgcolor: '#161b22',
+                        border: '1px solid #30363d',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                        mt: -1,
+                        '& .MuiMenuItem-root': {
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            py: 1,
+                            px: 2,
+                            borderRadius: '4px',
+                            mx: 0.5,
+                            '&:hover': { bgcolor: '#1c2128' }
+                        }
+                    }
+                }}
+            >
+                <MenuItem onClick={handleLogout} sx={{ color: '#f85149' }}>
+                    <LogoutIcon sx={{ fontSize: '16px', mr: 1.5 }} /> Sign Out
+                </MenuItem>
+            </Menu>
         </Box>
     );
+
+    const getPageTitle = () => {
+        const role = user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1);
+        const path = location.pathname.split('/').pop();
+        const page = path === '' || path === user?.role ? 'Dashboard' :
+            path.charAt(0).toUpperCase() + path.slice(1).replace('-', ' ');
+
+        return `${role} — ${page === 'Leaves' ? 'Leave Approvals' : page}`;
+    };
 
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -115,76 +344,43 @@ const SharedLayout = ({ children }) => {
                 sx={{
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                     ml: { sm: `${drawerWidth}px` },
-                    boxShadow: 'none',
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    bgcolor: 'background.paper',
-                    color: 'text.primary',
+                    bgcolor: 'background.default',
                 }}
             >
-                <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    <IconButton
-                        color="inherit"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: 'none' } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-
-                    <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 600 }}>
-                        {menuItems.find(i => i.path === location.pathname)?.text || 'Overview'}
-                    </Typography>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Box sx={{ textAlign: 'right', display: { xs: 'none', md: 'block' } }}>
-                            <Typography variant="subtitle2" sx={{ lineHeight: 1 }}>{user?.name}</Typography>
-                            <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
-                                {user?.role}
+                <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton
+                            color="inherit"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            sx={{ mr: 2, display: { sm: 'none' } }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Box>
+                            <Typography variant="h6" sx={{ fontSize: '17px', fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>
+                                {getPageTitle()}
+                            </Typography>
+                            <Typography sx={{ fontSize: '11px', color: 'text.secondary' }}>
+                                {user?.name} - {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
                             </Typography>
                         </Box>
-                        <Tooltip title="Account settings">
-                            <IconButton onClick={handleMenuOpen} size="small">
-                                <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main', fontWeight: 'bold' }}>
-                                    {user?.name ? user.name[0] : 'U'}
-                                </Avatar>
-                            </IconButton>
-                        </Tooltip>
                     </Box>
-
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleMenuClose}
-                        onClick={handleMenuClose}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                    >
-                        <MenuItem onClick={() => navigate(`/${user?.role}/profile`)}>
-                            <ListItemIcon><SettingsIcon fontSize="small" /></ListItemIcon>
-                            Profile
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleLogout}>
-                            <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
-                            <Typography color="error">Logout</Typography>
-                        </MenuItem>
-                    </Menu>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {/* Header utilities removed as requested */}
+                    </Box>
                 </Toolbar>
             </AppBar>
 
-            <Box
-                component="nav"
-                sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-            >
+
+            <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
                 <Drawer
                     variant="temporary"
                     open={mobileOpen}
                     onClose={handleDrawerToggle}
-                    ModalProps={{ keepMounted: true }}
                     sx={{
                         display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                        '& .MuiDrawer-paper': { width: drawerWidth },
                     }}
                 >
                     {drawer}
@@ -193,7 +389,7 @@ const SharedLayout = ({ children }) => {
                     variant="permanent"
                     sx={{
                         display: { xs: 'none', sm: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, borderRight: '1px solid rgba(0,0,0,0.08)' },
+                        '& .MuiDrawer-paper': { width: drawerWidth },
                     }}
                     open
                 >
@@ -201,10 +397,7 @@ const SharedLayout = ({ children }) => {
                 </Drawer>
             </Box>
 
-            <Box
-                component="main"
-                sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: 8 }}
-            >
+            <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
                 {children}
             </Box>
         </Box>
