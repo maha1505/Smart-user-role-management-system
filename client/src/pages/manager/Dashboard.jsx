@@ -19,6 +19,8 @@ import {
 } from '@mui/icons-material';
 import API from '../../api/api';
 import { useSelector } from 'react-redux';
+import TeamRiskPanel from './components/TeamRiskPanel';
+
 
 const StatCard = ({ title, value, subtext, icon, color, gradient }) => (
     <Card sx={{
@@ -236,6 +238,9 @@ const ManagerDashboard = () => {
                     </Card>
                 </Grid>
             </Grid>
+            <Box sx={{ mt: 4 }}>
+                <TeamRiskPanel />
+            </Box>
         </Box>
     );
 };

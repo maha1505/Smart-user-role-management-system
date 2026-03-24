@@ -161,8 +161,8 @@ const UserManagement = () => {
             </Box>
 
             <Card sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', borderRadius: '8px' }}>
-                <Box sx={{ p: '14px 20px', borderBottom: '1px solid', borderColor: 'divider' }}>
-                    <Stack direction="row" spacing={1.5}>
+                <Box sx={{ p: '14px 20px', borderBottom: '1px solid', borderColor: 'divider', overflowX: 'auto' }}>
+                    <Stack direction="row" spacing={1.5} sx={{ minWidth: 'max-content' }}>
                         {roles.map((r) => (
                             <Chip
                                 key={r.key}
@@ -186,6 +186,7 @@ const UserManagement = () => {
 
                 <TableContainer>
                     <Table size="small" sx={{
+                        minWidth: { xs: 800, sm: '100%' },
                         '& .MuiTableCell-root': { py: 2, fontSize: '11px', borderBottom: '1px solid #30363d' },
                         '& .MuiTableHead-root .MuiTableCell-root': { fontSize: '9px', textTransform: 'uppercase', color: 'text.secondary', fontWeight: 600, borderBottom: '1px solid #30363d', py: 1.5 }
                     }}>
@@ -282,7 +283,7 @@ const UserManagement = () => {
                 <DialogTitle sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800 }}>
                     {actionType === 'approve' ? 'Approve Registration' : 'Edit User'}
                 </DialogTitle>
-                <DialogContent sx={{ minWidth: 400, pt: 2 }}>
+                <DialogContent sx={{ minWidth: { xs: 'auto', sm: 400 }, pt: 2 }}>
                     <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '11px' }}>
                         Processing: <strong>{selectedUser?.name}</strong>
                     </Typography>

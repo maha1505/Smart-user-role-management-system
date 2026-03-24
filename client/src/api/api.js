@@ -2,8 +2,12 @@ import axios from 'axios';
 import store from '../store/store';
 import { logout } from '../store/store';
 
+// const API = axios.create({
+//     baseURL: 'http://localhost:5000/api',
+// });
+
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
 });
 
 // Add a request interceptor to attach the JWT token

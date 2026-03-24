@@ -329,6 +329,8 @@ const AccountantPayroll = () => {
             <Dialog 
                 open={openEdit} 
                 onClose={() => setOpenEdit(false)}
+                fullWidth
+                maxWidth="sm"
                 PaperProps={{
                     sx: {
                         bgcolor: '#0d1117',

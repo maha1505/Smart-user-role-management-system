@@ -114,7 +114,7 @@ const LeaveApprovals = () => {
             <Typography variant="h4" fontWeight="600" gutterBottom>
                 Leave Requests Approval ({user.role === 'manager' ? 'Stage 1' : 'Stage 2'})
             </Typography>
-            <Paper sx={{ mt: 3, p: 2, borderRadius: 3 }}>
+            <Paper sx={{ mt: 3, p: { xs: 1, sm: 2 }, borderRadius: 3, overflowX: 'auto' }}>
                 <DataGrid
                     rows={requests}
                     columns={columns}
@@ -125,9 +125,9 @@ const LeaveApprovals = () => {
                 />
             </Paper>
 
-            <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+            <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
                 <DialogTitle>{actionType === 'approved' ? 'Approve' : 'Reject'} Leave Request</DialogTitle>
-                <DialogContent sx={{ minWidth: 400 }}>
+                <DialogContent sx={{ minWidth: { xs: 'auto', sm: 400 } }}>
                     <Typography variant="body2" sx={{ mb: 2 }}>Employee: {selectedReq?.employeeName}</Typography>
                     <TextField
                         fullWidth

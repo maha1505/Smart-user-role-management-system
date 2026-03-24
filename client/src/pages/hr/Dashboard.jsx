@@ -22,6 +22,8 @@ import {
 import API from '../../api/api';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import WorkforceRiskPanel from './components/WorkforceRiskPanel';
+
 
 const StatCard = ({ title, value, subtext, icon, headerColor }) => (
     <Card sx={{
@@ -191,8 +193,10 @@ const HRDashboard = () => {
                                         py: 2,
                                         borderBottom: index === stats.recentApprovals.length - 1 ? 'none' : '1px solid #30363d',
                                         display: 'flex',
+                                        flexDirection: { xs: 'column', sm: 'row' },
                                         justifyContent: 'space-between',
-                                        alignItems: 'center'
+                                        alignItems: { xs: 'flex-start', sm: 'center' },
+                                        gap: 2
                                     }}
                                 >
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -301,6 +305,7 @@ const HRDashboard = () => {
                     </Card>
                 </Grid>
             </Grid>
+            <WorkforceRiskPanel />
         </Box>
     );
 };

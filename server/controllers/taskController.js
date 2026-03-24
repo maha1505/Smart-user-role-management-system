@@ -2,27 +2,32 @@ const Task = require('../models/Task');
 const User = require('../models/User');
 
 const createTask = async (req, res) => {
-    const { title, description, assignedTo, priority, deadline } = req.body;
+    try {
+        const { title, description, assignedTo, priority, deadline } = req.body;
 
-    // Security Check: Manager can only assign to their own department
-    if (req.user.role === 'manager') {
-        const assignedUser = await User.findById(assignedTo);
-        if (!assignedUser || assignedUser.department !== req.user.department) {
-            return res.status(403).json({ message: 'Managers can only assign tasks to employees within their own department.' });
+        // Security Check: Manager can only assign to their own department
+        if (req.user.role === 'manager') {
+            const assignedUser = await User.findById(assignedTo);
+            if (!assignedUser || assignedUser.department !== req.user.department) {
+                return res.status(403).json({ message: 'Managers can only assign tasks to employees within their own department.' });
+            }
         }
+
+        const task = await Task.create({
+            title,
+            description,
+            assignedTo,
+            assignedBy: req.user._id,
+            department: req.user.department,
+            priority,
+            deadline
+        });
+
+        res.status(201).json(task);
+    } catch (error) {
+        console.error('Create Task Error:', error);
+        res.status(500).json({ message: error.message });
     }
-
-    const task = await Task.create({
-        title,
-        description,
-        assignedTo,
-        assignedBy: req.user._id,
-        department: req.user.department,
-        priority,
-        deadline
-    });
-
-    res.status(201).json(task);
 };
 
 // @desc    Get all tasks (Admin only)

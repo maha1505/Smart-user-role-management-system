@@ -113,6 +113,7 @@ const PendingApprovals = () => {
                 </Box>
                 <TableContainer>
                     <Table size="small" sx={{
+                        minWidth: { xs: 700, sm: '100%' },
                         '& .MuiTableCell-root': { py: 2, fontSize: '12px', borderBottom: '1px solid #30363d' },
                         '& .MuiTableHead-root .MuiTableCell-root': { fontSize: '10px', textTransform: 'uppercase', color: 'text.secondary', fontWeight: 600, borderBottom: '1px solid #30363d' }
                     }}>
@@ -187,7 +188,7 @@ const PendingApprovals = () => {
                 <DialogTitle sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800 }}>
                     {actionType === 'approve' ? 'Approve Participant' : 'Reject Participant'}
                 </DialogTitle>
-                <DialogContent sx={{ minWidth: 400, pt: 2 }}>
+                <DialogContent sx={{ minWidth: { xs: 'auto', sm: 400 }, pt: 2 }}>
                     <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '12px' }}>
                         You are {actionType}ing <strong>{selectedUser?.name}</strong>. This action will define their system access.
                     </Typography>

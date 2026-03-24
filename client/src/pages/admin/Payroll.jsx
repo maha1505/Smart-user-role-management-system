@@ -168,6 +168,7 @@ const Payroll = () => {
                 </Box>
                 <TableContainer>
                     <Table size="small" sx={{
+                        minWidth: { xs: 800, sm: '100%' },
                         '& .MuiTableCell-root': { py: 2, fontSize: '12px', borderBottom: '1px solid #30363d' },
                         '& .MuiTableHead-root .MuiTableCell-root': { fontSize: '10px', textTransform: 'uppercase', color: 'text.secondary', fontWeight: 600, borderBottom: '1px solid #30363d' }
                     }}>

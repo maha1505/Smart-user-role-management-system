@@ -1,4 +1,4 @@
-# User Role Management System
+# OrgMind - Intelligent Workforce Control System
 
 A full-stack Corporate HR Management System built with the MERN stack
 featuring Role-Based Access Control (RBAC) for 5 roles —
@@ -23,8 +23,8 @@ Admin, Manager, Employee, HR and Accountant.
 ## Installation
 
 ### Clone the repository
-git clone [https://github.com/maha1505/Smart-user-role-management-system.git](https://github.com/maha1505/Smart-user-role-management-system)
-cd smart-user-role-management-system
+git clone https://github.com/maha1505/OrgMind.git
+cd OrgMind
 
 ### Setup Backend
 cd server

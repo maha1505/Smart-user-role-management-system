@@ -99,7 +99,7 @@ const HRLeaveApprovals = () => {
                 borderRadius: '12px',
                 boxShadow: 'none'
             }}>
-                <Table sx={{ minWidth: 650 }}>
+                <Table sx={{ minWidth: { xs: 800, sm: '100%' } }}>
                     <TableHead sx={{ borderBottom: '1px solid #30363d' }}>
                         <TableRow>
                             <TableCell sx={{ color: '#7d8590', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Employee</TableCell>
@@ -213,6 +213,8 @@ const HRLeaveApprovals = () => {
             <Dialog
                 open={openDialog}
                 onClose={() => setOpenDialog(false)}
+                fullWidth
+                maxWidth="sm"
                 PaperProps={{
                     sx: { bgcolor: '#161b22', border: '1px solid #30363d', borderRadius: '12px', color: '#e6edf3' }
                 }}

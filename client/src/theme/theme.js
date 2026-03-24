@@ -120,6 +120,20 @@ const theme = createTheme({
                 },
             },
         },
+        MuiTableContainer: {
+            styleOverrides: {
+                root: {
+                    overflowX: 'auto',
+                    '&::-webkit-scrollbar': {
+                        height: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: '#30363d',
+                        borderRadius: '10px',
+                    },
+                },
+            },
+        },
     },
 });
 

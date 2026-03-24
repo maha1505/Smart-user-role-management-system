@@ -1,4 +1,6 @@
 import { configureStore, createSlice } from '@reduxjs/toolkit';
+import riskReducer from './riskSlice';
+import nlpReducer from './nlpSlice';
 
 const authSlice = createSlice({
     name: 'auth',
@@ -37,6 +39,8 @@ export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.acti
 const store = configureStore({
     reducer: {
         auth: authSlice.reducer,
+        risk: riskReducer,
+        nlp: nlpReducer,
     },
 });
 

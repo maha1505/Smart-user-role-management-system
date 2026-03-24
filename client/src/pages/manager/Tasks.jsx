@@ -31,9 +31,12 @@ import {
     SwapHoriz as ReassignIcon,
 } from '@mui/icons-material';
 import API from '../../api/api';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import NLPTaskInput from './components/NLPTaskInput';
+import { clearNLPResult } from '../../store/nlpSlice';
 
 const TasksPage = () => {
+    const dispatch = useDispatch();
     const { user } = useSelector((state) => state.auth);
     const [tasks, setTasks] = useState([]);
     const [team, setTeam] = useState([]);
@@ -41,6 +44,7 @@ const TasksPage = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
+    const [nlpMode, setNlpMode] = useState(true); // Default to NLP for new tasks
     const [form, setForm] = useState({
         title: '',
         description: '',
@@ -96,6 +100,7 @@ const TasksPage = () => {
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setSelectedTask(null);
+        dispatch(clearNLPResult());
     };
 
     const handleSubmit = async () => {
@@ -136,15 +141,16 @@ const TasksPage = () => {
 
     return (
         <Box>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <TaskIcon sx={{ color: '#3fb950', fontSize: '24px' }} />
-                    <Typography sx={{ fontSize: '18px', fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>
+                    <Typography sx={{ fontSize: { xs: '16px', sm: '18px' }, fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>
                         Task Management
                     </Typography>
                 </Box>
                 <Button
                     variant="contained"
+                    fullWidth={false}
                     startIcon={<AddIcon />}
                     onClick={() => handleOpenDialog()}
                     sx={{
@@ -153,7 +159,8 @@ const TasksPage = () => {
                         textTransform: 'none',
                         fontWeight: 600,
                         borderRadius: '6px',
-                        px: 2
+                        px: 2,
+                        width: { xs: '100%', sm: 'auto' }
                     }}
                 >
                     Create Task
@@ -165,7 +172,7 @@ const TasksPage = () => {
                 border: '1px solid #30363d',
                 borderRadius: '12px'
             }}>
-                <Table>
+                <Table sx={{ minWidth: { xs: 850, sm: '100%' } }}>
                     <TableHead sx={{ borderBottom: '1px solid #30363d' }}>
                         <TableRow>
                             <TableCell sx={{ color: '#7d8590', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', py: 2 }}>Task</TableCell>
@@ -268,7 +275,56 @@ const TasksPage = () => {
                     {isEdit ? 'Update Task' : 'Create New Task'}
                 </DialogTitle>
                 <DialogContent sx={{ pt: 2 }}>
-                    <TextField
+                    {!isEdit && (
+                        <Box sx={{ mb: 3, display: 'flex', bgcolor: '#161b22', p: 0.5, borderRadius: '8px', border: '1px solid #30363d' }}>
+                            <Button
+                                fullWidth
+                                size="small"
+                                onClick={() => setNlpMode(true)}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    bgcolor: nlpMode ? '#30363d' : 'transparent',
+                                    color: nlpMode ? '#e6edf3' : '#8b949e',
+                                    '&:hover': { bgcolor: nlpMode ? '#30363d' : 'rgba(48, 54, 61, 0.5)' }
+                                }}
+                            >
+                                Describe it
+                            </Button>
+                            <Button
+                                fullWidth
+                                size="small"
+                                onClick={() => setNlpMode(false)}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    bgcolor: !nlpMode ? '#30363d' : 'transparent',
+                                    color: !nlpMode ? '#e6edf3' : '#8b949e',
+                                    '&:hover': { bgcolor: !nlpMode ? '#30363d' : 'rgba(48, 54, 61, 0.5)' }
+                                }}
+                            >
+                                Fill manually
+                            </Button>
+                        </Box>
+                    )}
+
+                    {!isEdit && nlpMode ? (
+                        <NLPTaskInput
+                            onParseSuccess={(data) => {
+                                setForm({
+                                    ...form,
+                                    title: data.title || form.title,
+                                    description: data.description || data.title || form.description,
+                                    assignedTo: data.assignedTo || form.assignedTo,
+                                    priority: data.priority || form.priority,
+                                    deadline: data.dueDate || form.deadline
+                                });
+                                setNlpMode(false); // Switch to manual to review
+                            }}
+                        />
+                    ) : (
+                        <>
+                            <TextField
                         fullWidth
                         size="small"
                         label="Task Title"
@@ -332,6 +388,8 @@ const TasksPage = () => {
                             />
                         </Grid>
                     </Grid>
+                    </>
+                    )}
                 </DialogContent>
                 <DialogActions sx={{ p: 3 }}>
                     <Button onClick={handleCloseDialog} sx={{ color: '#8b949e', textTransform: 'none' }}>Cancel</Button>

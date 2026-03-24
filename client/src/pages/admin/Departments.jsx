@@ -87,7 +87,7 @@ const Departments = () => {
             ) : (
                 <Grid container spacing={4} columns={12}>
                     {departments.map((dept) => (
-                        <Grid item xs={4} key={dept.id || dept._id}>
+                        <Grid item xs={12} sm={6} md={4} key={dept.id || dept._id}>
                             <Card sx={{
                                 height: '300px',
                                 display: 'flex',

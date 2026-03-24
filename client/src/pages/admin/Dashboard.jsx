@@ -56,7 +56,7 @@ const StatCard = ({ title, value, subtext, icon, color, gradient }) => (
         <Typography variant="h4" sx={{
             fontFamily: 'Syne, sans-serif',
             fontWeight: 800,
-            fontSize: '28px',
+            fontSize: { xs: '22px', sm: '28px' },
             color: 'text.primary',
             mb: 0.5
         }}>
@@ -280,8 +280,9 @@ const AdminDashboard = () => {
                                 View All
                             </Button>
                         </Box>
-                        <TableContainer sx={{ px: 2, pb: 2 }}>
+                        <TableContainer sx={{ px: { xs: 0, sm: 2 }, pb: 2 }}>
                             <Table size="small" sx={{
+                                minWidth: { xs: 600, sm: '100%' },
                                 '& .MuiTableCell-root': { py: 1.5, fontSize: '12px', borderBottom: '1px solid #30363d' },
                                 '& .MuiTableHead-root .MuiTableCell-root': { fontSize: '10px', textTransform: 'uppercase', color: 'text.secondary', fontWeight: 600, borderBottom: '1px solid #30363d' }
                             }}>

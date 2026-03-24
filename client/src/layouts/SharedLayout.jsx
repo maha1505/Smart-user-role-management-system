@@ -180,10 +180,10 @@ const SharedLayout = ({ children }) => {
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ p: '16px', borderBottom: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="subtitle1" sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '15px' }}>
-                    HR<span style={{ color: '#58a6ff' }}>Portal</span>
+                    Org<span style={{ color: '#58a6ff' }}>Mind</span>
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 1, textTransform: 'uppercase', fontSize: '9px' }}>
-                    Role Management
+                    Intelligent Workforce Control
                 </Typography>
             </Box>
 
@@ -338,7 +338,7 @@ const SharedLayout = ({ children }) => {
     };
 
     return (
-        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default', maxWidth: '100vw', overflowX: 'hidden' }}>
             <AppBar
                 position="fixed"
                 sx={{
@@ -347,7 +347,7 @@ const SharedLayout = ({ children }) => {
                     bgcolor: 'background.default',
                 }}
             >
-                <Toolbar sx={{ justifyContent: 'space-between', px: 3 }}>
+                <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, sm: 3 } }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <IconButton
                             color="inherit"
@@ -397,7 +397,7 @@ const SharedLayout = ({ children }) => {
                 </Drawer>
             </Box>
 
-            <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+            <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, mt: 8, minWidth: 0, width: '100%' }}>
                 {children}
             </Box>
         </Box>

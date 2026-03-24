@@ -11,6 +11,9 @@ const taskRoutes = require('./routes/taskRoutes');
 const leaveRoutes = require('./routes/leaveRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const payrollRoutes = require('./routes/payrollRoutes');
+const riskRoutes = require('./routes/riskRoutes');
+const nlpRoutes = require('./routes/nlpRoutes');
+const initRiskScoreJob = require('./jobs/riskScoreJob');
 
 dotenv.config();
 connectDB();
@@ -31,10 +34,19 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/logs', auditRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/risk', riskRoutes);
+app.use('/api/nlp', nlpRoutes);
+
+// Initialize Jobs
+initRiskScoreJob();
 
 // Root Endpoint
+// app.get('/', (req, res) => {
+//     res.send('Smart User Role Management API is running...');
+// });
+
 app.get('/', (req, res) => {
-    res.send('Smart User Role Management API is running...');
+    res.send('OrgMind - Intelligent Workforce Control System API is running...');
 });
 
 const PORT = process.env.PORT || 5000;
