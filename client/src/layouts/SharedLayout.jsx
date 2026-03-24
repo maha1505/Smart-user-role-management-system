@@ -180,7 +180,7 @@ const SharedLayout = ({ children }) => {
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ p: '16px', borderBottom: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="subtitle1" sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '15px' }}>
-                    Org<span style={{ color: '#58a6ff' }}>Mind</span>
+                    Role<span style={{ color: '#58a6ff' }}>Core</span>
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary', letterSpacing: 1, textTransform: 'uppercase', fontSize: '9px' }}>
                     Intelligent Workforce Control

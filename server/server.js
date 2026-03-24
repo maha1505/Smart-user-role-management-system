@@ -46,7 +46,7 @@ initRiskScoreJob();
 // });
 
 app.get('/', (req, res) => {
-    res.send('OrgMind - Intelligent Workforce Control System API is running...');
+    res.send('RoleCore - Intelligent Workforce Control System API is running...');
 });
 
 const PORT = process.env.PORT || 5000;
