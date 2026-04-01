@@ -17,6 +17,6 @@ router.put('/:id', authorize('accountant', 'admin'), logAudit('UPDATE_PAYROLL', 
 router.get('/stats', authorize('accountant', 'admin'), getAccountantStats);
 router.get('/reports', authorize('accountant', 'admin'), getAccountantReports);
 
-router.get('/my', authorize('employee'), getMyPayroll);
+router.get('/my', authorize('employee', 'manager', 'hr', 'accountant'), getMyPayroll);
 
 module.exports = router;

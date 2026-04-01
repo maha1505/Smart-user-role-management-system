@@ -95,6 +95,9 @@ const App = () => {
                 <Route path="tasks" element={<ManagerTasks />} />
                 <Route path="leaves" element={<ManagerLeaveApprovals />} />
                 <Route path="reports" element={<ManagerReports />} />
+                {/* Self Service */}
+                <Route path="my-leaves" element={<LeaveHistory />} />
+                <Route path="my-payroll" element={<MyPayroll />} />
               </Routes>
             </SharedLayout>
           </ProtectedRoute>
@@ -124,6 +127,9 @@ const App = () => {
                 <Route index element={<HRDashboard />} />
                 <Route path="employees" element={<EmployeeRecords />} />
                 <Route path="leaves" element={<HRLeaveApprovals />} />
+                {/* Self Service */}
+                <Route path="my-leaves" element={<LeaveHistory />} />
+                <Route path="my-payroll" element={<MyPayroll />} />
               </Routes>
             </SharedLayout>
           </ProtectedRoute>
@@ -139,6 +145,9 @@ const App = () => {
                 <Route path="payroll" element={<PayrollManagement />} />
                 <Route path="generate" element={<GeneratePayslip />} />
                 <Route path="reports" element={<AccountantReports />} />
+                {/* Self Service */}
+                <Route path="my-leaves" element={<LeaveHistory />} />
+                <Route path="my-payroll" element={<MyPayroll />} />
               </Routes>
             </SharedLayout>
           </ProtectedRoute>

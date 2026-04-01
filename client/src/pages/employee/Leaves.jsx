@@ -10,7 +10,7 @@ const LeaveHistory = () => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const { data } = await API.get('/leaves');
+                const { data } = await API.get('/leaves?self=true');
                 setHistory(data.map((h, index) => ({ ...h, id: h._id || index })));
             } catch (err) {
                 console.error('Fetch leave history failed', err);

@@ -118,12 +118,18 @@ const SharedLayout = ({ children }) => {
 
     const managerNav = [
         {
-            label: '', items: [
+            label: 'Management', items: [
                 { text: 'Dashboard', icon: <HomeIcon fontSize="small" />, path: '/manager' },
                 { text: 'My Team', icon: <PeopleIcon fontSize="small" />, path: '/manager/team' },
                 { text: 'Tasks', icon: <TaskIcon fontSize="small" />, path: '/manager/tasks' },
                 { text: 'Leave Approvals', icon: <LeaveIcon fontSize="small" />, path: '/manager/leaves' },
                 { text: 'Reports', icon: <ReportsIcon fontSize="small" />, path: '/manager/reports' },
+            ]
+        },
+        {
+            label: 'Personal Portal', items: [
+                { text: 'My Leaves', icon: <AuditIcon fontSize="small" />, path: '/manager/my-leaves' },
+                { text: 'My Payslip', icon: <PayrollIcon fontSize="small" />, path: '/manager/my-payroll' },
             ]
         }
     ];
@@ -143,22 +149,34 @@ const SharedLayout = ({ children }) => {
 
     const hrNav = [
         {
-            label: 'Main', items: [
+            label: 'Management', items: [
                 { text: 'Dashboard', icon: <HomeIcon fontSize="small" />, path: '/hr' },
                 { text: 'Employee Records', icon: <PeopleIcon fontSize="small" />, path: '/hr/employees' },
                 { text: 'Leave Approvals', icon: <LeaveIcon fontSize="small" />, path: '/hr/leaves', badge: pendingCount },
                 // { text: 'Attendance Reports', icon: <ReportsIcon fontSize="small" />, path: '/hr/attendance' },
+            ]
+        },
+        {
+            label: 'Personal Portal', items: [
+                { text: 'My Leaves', icon: <AuditIcon fontSize="small" />, path: '/hr/my-leaves' },
+                { text: 'My Payslip', icon: <PayrollIcon fontSize="small" />, path: '/hr/my-payroll' },
             ]
         }
     ];
 
     const accountantNav = [
         {
-            label: 'Main', items: [
+            label: 'Management', items: [
                 { text: 'Dashboard', icon: <HomeIcon fontSize="small" sx={{ color: '#d29922' }} />, path: '/accountant' },
                 { text: 'Payroll', icon: <PayrollIcon fontSize="small" sx={{ color: '#f85149' }} />, path: '/accountant/payroll' },
                 { text: 'Generate Payslip', icon: <TaskIcon fontSize="small" sx={{ color: '#8957e5' }} />, path: '/accountant/generate' },
                 { text: 'Reports', icon: <ReportsIcon fontSize="small" sx={{ color: '#3fb950' }} />, path: '/accountant/reports' },
+            ]
+        },
+        {
+            label: 'Personal Portal', items: [
+                { text: 'My Leaves', icon: <AuditIcon fontSize="small" />, path: '/accountant/my-leaves' },
+                { text: 'My Payslip', icon: <PayrollIcon fontSize="small" />, path: '/accountant/my-payroll' },
             ]
         }
     ];

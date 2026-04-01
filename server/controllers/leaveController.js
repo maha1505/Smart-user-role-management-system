@@ -68,7 +68,10 @@ const hrApproval = async (req, res) => {
 const getAllLeaves = async (req, res) => {
     let query = {};
 
-    if (req.user.role === 'manager') {
+    // If "self" query param is present, only return user's own leaves
+    if (req.query.self === 'true') {
+        query = { employeeId: req.user._id };
+    } else if (req.user.role === 'manager') {
         // Only see leaves from their department
         const usersInDept = await User.find({ department: req.user.department }).select('_id');
         const userIds = usersInDept.map(u => u._id);
@@ -76,7 +79,7 @@ const getAllLeaves = async (req, res) => {
     } else if (req.user.role === 'employee') {
         query = { employeeId: req.user._id };
     }
-    // HR/Admin see all
+    // HR/Admin see all (unless ?self=true)
 
     const leaves = await LeaveRequest.find(query)
         .populate('employeeId', 'name username department')
