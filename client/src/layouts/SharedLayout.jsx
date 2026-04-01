@@ -176,7 +176,6 @@ const SharedLayout = ({ children }) => {
         {
             label: 'Personal Portal', items: [
                 { text: 'My Leaves', icon: <AuditIcon fontSize="small" />, path: '/accountant/my-leaves' },
-                { text: 'My Payslip', icon: <PayrollIcon fontSize="small" />, path: '/accountant/my-payroll' },
             ]
         }
     ];

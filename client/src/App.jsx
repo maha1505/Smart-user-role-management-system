@@ -147,7 +147,6 @@ const App = () => {
                 <Route path="reports" element={<AccountantReports />} />
                 {/* Self Service */}
                 <Route path="my-leaves" element={<LeaveHistory />} />
-                <Route path="my-payroll" element={<MyPayroll />} />
               </Routes>
             </SharedLayout>
           </ProtectedRoute>
