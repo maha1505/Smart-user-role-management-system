@@ -6,9 +6,18 @@ import { logout } from '../store/store';
 //     baseURL: 'http://localhost:5000/api',
 // });
 
+const getBaseURL = () => {
+    const envURL = import.meta.env.VITE_API_BASE_URL;
+    if (!envURL) return 'http://localhost:5000/api';
+    
+    // Ensure it ends with /api
+    return envURL.endsWith('/api') ? envURL : `${envURL.replace(/\/$/, '')}/api`;
+};
+
 const API = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+    baseURL: getBaseURL(),
 });
+
 
 // Add a request interceptor to attach the JWT token
 API.interceptors.request.use((req) => {
