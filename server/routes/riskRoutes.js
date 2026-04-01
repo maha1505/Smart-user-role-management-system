@@ -20,6 +20,8 @@ router.get('/scores', protect, authorize('admin', 'hr'), async (req, res) => {
     }
 });
 
+const User = require('../models/User');
+
 /**
  * @desc    Get risk scores for manager's own team
  * @route   GET /api/risk/scores/team
@@ -27,17 +29,14 @@ router.get('/scores', protect, authorize('admin', 'hr'), async (req, res) => {
  */
 router.get('/scores/team', protect, authorize('manager'), async (req, res) => {
     try {
-        const scores = await RiskScore.find()
-            .populate({
-                path: 'employeeId',
-                match: { managerId: req.user._id },
-                select: 'name email department joiningDate'
-            })
+        const teamUsers = await User.find({ department: req.user.department }).select('_id');
+        const teamIds = teamUsers.map(u => u._id);
+
+        const scores = await RiskScore.find({ employeeId: { $in: teamIds } })
+            .populate('employeeId', 'name email department joiningDate')
             .sort({ score: -1 });
 
-        // Filter out scores where populate didn't match (i.e., not in manager's team)
-        const teamScores = scores.filter(s => s.employeeId !== null);
-        res.json(teamScores);
+        res.json(scores);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
