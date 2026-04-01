@@ -9,7 +9,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, username, email, password, department } = req.body;
+    const { name, username, email, password } = req.body;
 
     const userExists = await User.findOne({
         $or: [{ email }, { username }]
@@ -24,10 +24,11 @@ const registerUser = async (req, res) => {
         username,
         email,
         password,
-        department,
         registrationStatus: 'pending',
-        isActive: false
+        isActive: false,
+        department: '' // Will be assigned by Admin during approval
     });
+
 
     if (user) {
         res.status(201).json({

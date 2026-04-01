@@ -22,25 +22,11 @@ const Register = () => {
         username: '',
         email: '',
         password: '',
-        department: '',
     });
-    const [departments, setDepartments] = useState([]);
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchDepartments = async () => {
-            try {
-                const { data } = await API.get('/auth/departments');
-                setDepartments(data);
-            } catch (err) {
-                console.error('Failed to fetch departments', err);
-            }
-        };
-        fetchDepartments();
-    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,6 +65,9 @@ const Register = () => {
                             <Typography variant="body1">
                                 Your account has been created and is currently <b>Pending Approval</b> by the Admin.
                                 You will be able to login once your request is approved.
+                            </Typography>
+                            <Typography variant="body2" sx={{ mt: 2, opacity: 0.9 }}>
+                                An administrator will assign you to a department and role shortly.
                             </Typography>
                             <Button
                                 variant="contained"
@@ -142,7 +131,7 @@ const Register = () => {
                                             onChange={handleChange}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid item xs={12}>
                                         <TextField
                                             fullWidth
                                             label="Username"
@@ -151,23 +140,6 @@ const Register = () => {
                                             value={formData.username}
                                             onChange={handleChange}
                                         />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6}>
-                                        <TextField
-                                            fullWidth
-                                            label="Department"
-                                            name="department"
-                                            select
-                                            required
-                                            value={formData.department}
-                                            onChange={handleChange}
-                                        >
-                                            {departments.map((option) => (
-                                                <MenuItem key={option.id || option.name} value={option.name}>
-                                                    {option.name}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
                                     </Grid>
                                     <Grid item xs={12}>
                                         <TextField
@@ -198,8 +170,9 @@ const Register = () => {
                                     variant="contained"
                                     size="large"
                                     sx={{ mt: 4, mb: 2, py: 1.5, borderRadius: 2 }}
+                                    disabled={loading}
                                 >
-                                    Register
+                                    {loading ? 'Processing...' : 'Register'}
                                 </Button>
                             </form>
 
@@ -218,5 +191,6 @@ const Register = () => {
         </Box>
     );
 };
+
 
 export default Register;

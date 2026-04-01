@@ -216,19 +216,20 @@ const PendingApprovals = () => {
                                 label="Assigned Department"
                                 size="small"
                                 margin="dense"
-                                required={formData.role === 'manager'}
-                                error={formData.role === 'manager' && !formData.department}
-                                helperText={formData.role === 'manager' && !formData.department ? 'Department is required for Managers' : ''}
+                                required={formData.role !== 'admin'}
+                                error={formData.role !== 'admin' && !formData.department}
+                                helperText={formData.role !== 'admin' && !formData.department ? 'Department is required' : ''}
                                 value={formData.department}
                                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                             >
                                 <MenuItem value=""><em>None</em></MenuItem>
                                 {departments.map((dept) => (
-                                    <MenuItem key={dept.id} value={dept.name}>
+                                    <MenuItem key={dept.id || dept._id} value={dept.name}>
                                         {dept.name}
                                     </MenuItem>
                                 ))}
                             </TextField>
+
                         </Box>
                     ) : (
                         <TextField
@@ -249,7 +250,7 @@ const PendingApprovals = () => {
                     <Button
                         onClick={handleUpdateStatus}
                         variant="contained"
-                        disabled={actionType === 'approve' && formData.role === 'manager' && !formData.department}
+                        disabled={actionType === 'approve' && formData.role !== 'admin' && !formData.department}
                         sx={{ fontSize: '12px', bgcolor: actionType === 'approve' ? '#238636' : '#da3633' }}
                     >
                         {actionType === 'approve' ? 'Confirm Approval' : 'Confirm Rejection'}
