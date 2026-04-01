@@ -16,9 +16,13 @@ const payrollRoutes = require('./routes/payrollRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const nlpRoutes = require('./routes/nlpRoutes');
 const initRiskScoreJob = require('./jobs/riskScoreJob');
+const autoSeedData = require('./utils/seed');
 
 dotenv.config();
-connectDB();
+connectDB().then(() => {
+    // Run auto-seeding after DB connection
+    autoSeedData();
+});
 
 const app = express();
 
