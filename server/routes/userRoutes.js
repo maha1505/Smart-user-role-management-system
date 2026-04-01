@@ -8,8 +8,10 @@ const {
     getManagerTeam,
     getManagerReports,
     getHRDashboardStats,
-    deleteUser
+    deleteUser,
+    updateDepartment
 } = require('../controllers/userController');
+
 const { protect, authorize } = require('../middleware/authMiddleware');
 const logAudit = require('../middleware/auditMiddleware');
 const router = express.Router();
