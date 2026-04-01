@@ -43,29 +43,9 @@ app.use('/api/nlp', nlpRoutes);
 initRiskScoreJob();
 
 // Root Endpoint
-// app.get('/', (req, res) => {
-//     res.send('Smart User Role Management API is running...');
-// });
-
-// app.get('/', (req, res) => {
-//     res.send('RoleCore - Intelligent Workforce Control System API is running...');
-// });
-
-// Serve Static Assets in Production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
-
-    app.get('/:path*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
-    });
-
-
-
-} else {
-    app.get('/', (req, res) => {
-        res.send('RoleCore - Intelligent Workforce Control System API is running...');
-    });
-}
+app.get('/', (req, res) => {
+    res.send('RoleCore - Intelligent Workforce Control System API is running...');
+});
 
 
 const PORT = process.env.PORT || 5000;
