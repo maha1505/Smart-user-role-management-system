@@ -425,6 +425,8 @@ const getHRDashboardStats = async (req, res) => {
 
 // @desc    Delete user (Admin only)
 // @route   DELETE /api/users/:id
+// @desc    Delete user (Admin only)
+// @route   DELETE /api/users/:id
 const deleteUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -441,11 +443,54 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// @desc    Update Department
+// @route   PUT /api/users/departments/:id
+const updateDepartment = async (req, res) => {
+    try {
+        const { name, managerId, color, efficiency, description } = req.body;
+        const department = await Department.findById(req.params.id);
+
+        if (department) {
+            department.name = name || department.name;
+            department.managerId = managerId || department.managerId;
+            department.color = color || department.color;
+            department.efficiency = efficiency || department.efficiency;
+            department.description = description || department.description;
+
+            const updatedDept = await department.save();
+            
+            // Re-populate and return with stats similarly to getDepartments
+            const populatedDept = await Department.findById(updatedDept._id).populate('managerId', 'name');
+            const deptRegex = new RegExp(`^${populatedDept.name}$`, 'i');
+            const [count, employees] = await Promise.all([
+                User.countDocuments({ department: deptRegex }),
+                User.find({ department: deptRegex }, 'name username role')
+            ]);
+
+            res.json({
+                id: populatedDept._id,
+                name: populatedDept.name,
+                lead: populatedDept.managerId?.name || 'Not Assigned',
+                count: count,
+                efficiency: populatedDept.efficiency || 0,
+                color: populatedDept.color || '#58a6ff',
+                employees: employees.map(emp => ({ name: emp.name, username: emp.username, role: emp.role }))
+            });
+        } else {
+            res.status(404).json({ message: 'Department not found' });
+        }
+    } catch (err) {
+        console.error('Update Department Error:', err);
+        res.status(500).json({ message: 'Server error updating department', error: err.message });
+    }
+};
+
 module.exports = {
     getUsers,
     updateUserStatus,
     getDashboardStats,
     getDepartments,
+    updateDepartment,
     getManagerDashboardStats,
     getManagerTeam,
     getManagerReports,

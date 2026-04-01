@@ -19,7 +19,13 @@ router.use(protect); // All user routes require authentication
 router.get('/', authorize('admin', 'hr', 'accountant'), getUsers);
 router.get('/stats', authorize('admin'), getDashboardStats);
 router.get('/departments', authorize('admin'), getDepartments);
+router.put('/departments/:id',
+    authorize('admin'),
+    logAudit('UPDATE_DEPARTMENT', 'department'),
+    updateDepartment
+);
 router.get('/manager-stats', authorize('manager'), getManagerDashboardStats);
+
 router.get('/manager-team', authorize('manager'), getManagerTeam);
 router.get('/manager-reports', authorize('manager'), getManagerReports);
 router.get('/hr-stats', authorize('hr'), getHRDashboardStats);
