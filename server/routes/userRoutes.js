@@ -9,7 +9,9 @@ const {
     getManagerReports,
     getHRDashboardStats,
     deleteUser,
-    updateDepartment
+    updateDepartment,
+    createDepartment,
+    deleteDepartment
 } = require('../controllers/userController');
 
 const { protect, authorize } = require('../middleware/authMiddleware');
@@ -21,11 +23,22 @@ router.use(protect); // All user routes require authentication
 router.get('/', authorize('admin', 'hr', 'accountant'), getUsers);
 router.get('/stats', authorize('admin'), getDashboardStats);
 router.get('/departments', authorize('admin'), getDepartments);
+router.post('/departments',
+    authorize('admin'),
+    logAudit('CREATE_DEPARTMENT', 'department'),
+    createDepartment
+);
 router.put('/departments/:id',
     authorize('admin'),
     logAudit('UPDATE_DEPARTMENT', 'department'),
     updateDepartment
 );
+router.delete('/departments/:id',
+    authorize('admin'),
+    logAudit('DELETE_DEPARTMENT', 'department'),
+    deleteDepartment
+);
+
 router.get('/manager-stats', authorize('manager'), getManagerDashboardStats);
 
 router.get('/manager-team', authorize('manager'), getManagerTeam);

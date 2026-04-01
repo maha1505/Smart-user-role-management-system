@@ -35,6 +35,7 @@ import {
     TrendingUp as TrendIcon,
     Person as PersonIcon,
     Edit as EditIcon,
+    Delete as DeleteIcon,
 } from '@mui/icons-material';
 import API from '../../api/api';
 
@@ -47,6 +48,15 @@ const Departments = () => {
     const [editOpen, setEditOpen] = useState(false);
     const [managers, setManagers] = useState([]);
     const [editData, setEditData] = useState({
+        name: '',
+        managerId: '',
+        color: '#58a6ff',
+        efficiency: 0,
+        description: ''
+    });
+    const [createOpen, setCreateOpen] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [createData, setCreateData] = useState({
         name: '',
         managerId: '',
         color: '#58a6ff',
@@ -80,6 +90,30 @@ const Departments = () => {
 
     const handleCloseEdit = () => {
         setEditOpen(false);
+    };
+
+    const handleOpenCreate = () => {
+        setCreateData({
+            name: '',
+            managerId: '',
+            color: '#58a6ff',
+            efficiency: 0,
+            description: ''
+        });
+        setCreateOpen(true);
+    };
+
+    const handleCloseCreate = () => {
+        setCreateOpen(false);
+    };
+
+    const handleOpenDeleteConfirm = () => {
+        handleMenuClose();
+        setDeleteConfirmOpen(true);
+    };
+
+    const handleCloseDeleteConfirm = () => {
+        setDeleteConfirmOpen(false);
     };
 
     const fetchDepartments = async () => {
@@ -127,6 +161,28 @@ const Departments = () => {
         }
     };
 
+    const handleCreateDepartment = async () => {
+        try {
+            await API.post('/users/departments', createData);
+            handleCloseCreate();
+            fetchDepartments();
+        } catch (err) {
+            console.error('Failed to create department', err);
+            alert(err.response?.data?.message || 'Failed to create department');
+        }
+    };
+
+    const handleDeleteDepartment = async () => {
+        try {
+            await API.delete(`/users/departments/${selectedDept.id || selectedDept._id}`);
+            handleCloseDeleteConfirm();
+            fetchDepartments();
+        } catch (err) {
+            console.error('Failed to delete department', err);
+            alert(err.response?.data?.message || 'Failed to delete department');
+        }
+    };
+
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
@@ -146,6 +202,14 @@ const Departments = () => {
                         Organizational structure and resource distribution overview
                     </Typography>
                 </Box>
+                <Button 
+                    variant="contained" 
+                    startIcon={<AddIcon />}
+                    onClick={handleOpenCreate}
+                    sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+                >
+                    New Department
+                </Button>
             </Box>
 
             {departments.length === 0 ? (
@@ -278,6 +342,9 @@ const Departments = () => {
                 <MenuItem onClick={handleOpenEdit} sx={{ fontSize: '12px', gap: 1 }}>
                     <EditIcon sx={{ fontSize: '16px' }} /> Edit
                 </MenuItem>
+                <MenuItem onClick={handleOpenDeleteConfirm} sx={{ fontSize: '12px', gap: 1, color: '#ff7b72' }}>
+                    <DeleteIcon sx={{ fontSize: '16px' }} /> Delete
+                </MenuItem>
             </Menu>
 
             {/* Edit Dialog */}
@@ -353,6 +420,151 @@ const Departments = () => {
                     <Button onClick={handleCloseEdit} color="inherit">Cancel</Button>
                     <Button onClick={handleUpdateDepartment} variant="contained">Save Changes</Button>
                 </Stack>
+            </Dialog>
+
+            {/* Create Dialog */}
+            <Dialog open={createOpen} onClose={handleCloseCreate} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800 }}>
+                    Create New Department
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Stack spacing={3} sx={{ mt: 1 }}>
+                        <TextField
+                            fullWidth
+                            label="Department Name"
+                            placeholder="e.g. Engineering"
+                            value={createData.name}
+                            onChange={(e) => setCreateData({ ...createData, name: e.target.value })}
+                        />
+                        <TextField
+                            fullWidth
+                            multiline
+                            rows={3}
+                            label="Description"
+                            value={createData.description}
+                            onChange={(e) => setCreateData({ ...createData, description: e.target.value })}
+                        />
+                        <FormControl fullWidth>
+                            <InputLabel>Lead Manager</InputLabel>
+                            <Select
+                                value={createData.managerId}
+                                label="Lead Manager"
+                                onChange={(e) => setCreateData({ ...createData, managerId: e.target.value })}
+                            >
+                                <MenuItem value=""><em>None Assigned</em></MenuItem>
+                                {managers.map((m) => (
+                                    <MenuItem key={m._id} value={m._id}>{m.name} (@{m.username})</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                                Performance / Efficiency ({createData.efficiency}%)
+                            </Typography>
+                            <Slider
+                                value={createData.efficiency}
+                                onChange={(e, val) => setCreateData({ ...createData, efficiency: val })}
+                                valueLabelDisplay="auto"
+                                sx={{ color: createData.color }}
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                                Brand Color
+                            </Typography>
+                            <Stack direction="row" spacing={1}>
+                                {['#58a6ff', '#7ee787', '#d2a8ff', '#ffa657', '#ff7b72'].map((c) => (
+                                    <Box
+                                        key={c}
+                                        onClick={() => setCreateData({ ...createData, color: c })}
+                                        sx={{
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: '4px',
+                                            bgcolor: c,
+                                            cursor: 'pointer',
+                                            border: createData.color === c ? '2px solid white' : '2px solid transparent',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    />
+                                ))}
+                            </Stack>
+                        </Box>
+                    </Stack>
+                </DialogContent>
+                <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ p: 2, bgcolor: 'background.paper' }}>
+                    <Button onClick={handleCloseCreate} color="inherit">Cancel</Button>
+                    <Button onClick={handleCreateDepartment} variant="contained">Create Department</Button>
+                </Stack>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteConfirmOpen} onClose={handleCloseDeleteConfirm} maxWidth="xs" fullWidth>
+                <DialogTitle sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800 }}>
+                    Delete {selectedDept?.name}?
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                        Are you sure you want to delete this department? This action cannot be undone.
+                    </Typography>
+                    <Typography variant="caption" component="div" sx={{ p: 1.5, bgcolor: 'rgba(255, 123, 114, 0.1)', color: '#ff7b72', border: '1px solid rgba(255, 123, 114, 0.2)', borderRadius: 2 }}>
+                        <b>Note:</b> You can only delete departments that have 0 active employees.
+                    </Typography>
+                </DialogContent>
+                <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ p: 2 }}>
+                    <Button onClick={handleCloseDeleteConfirm} color="inherit">Cancel</Button>
+                    <Button onClick={handleDeleteDepartment} variant="contained" sx={{ bgcolor: '#ff7b72', '&:hover': { bgcolor: '#da3633' } }}>Delete</Button>
+                </Stack>
+            </Dialog>
+
+            {/* Details Dialog (Restored) */}
+            <Dialog open={open} onClose={handleCloseDetails} maxWidth="xs" fullWidth>
+                <DialogTitle sx={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '18px', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ width: 12, height: 12, borderRadius: '2px', bgcolor: selectedDept?.color }} />
+                    {selectedDept?.name} Members
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 800, fontSize: '10px', letterSpacing: 1 }}>
+                            Department Lead
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1 }}>
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: '14px' }}>
+                                {selectedDept?.lead?.[0]}
+                            </Avatar>
+                            <Box>
+                                <Typography sx={{ fontSize: '14px', fontWeight: 700 }}>{selectedDept?.lead}</Typography>
+                                <Typography variant="caption" color="text.secondary">Manager</Typography>
+                            </Box>
+                        </Box>
+                    </Box>
+
+                    <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', fontWeight: 800, fontSize: '10px', letterSpacing: 1 }}>
+                        Employees ({selectedDept?.count})
+                    </Typography>
+                    <List sx={{ mt: 1 }}>
+                        {selectedDept?.employees?.map((emp, i) => (
+                            <ListItem key={i} disablePadding sx={{ mb: 1.5 }}>
+                                <ListItemAvatar sx={{ minWidth: 40 }}>
+                                    <Avatar sx={{ width: 28, height: 28, bgcolor: '#1c2128', color: selectedDept?.color, border: '1px solid', borderColor: 'divider' }}>
+                                        <PersonIcon sx={{ fontSize: '16px' }} />
+                                    </Avatar>
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={emp.name}
+                                    secondary={emp.role?.charAt(0).toUpperCase() + emp.role?.slice(1)}
+                                    primaryTypographyProps={{ fontSize: '13px', fontWeight: 600 }}
+                                    secondaryTypographyProps={{ fontSize: '11px' }}
+                                />
+                            </ListItem>
+                        ))}
+                        {(!selectedDept?.employees || selectedDept.employees.length === 0) && (
+                            <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+                                No employees found in this department.
+                            </Typography>
+                        )}
+                    </List>
+                </DialogContent>
             </Dialog>
         </Box>
     );

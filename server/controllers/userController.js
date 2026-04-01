@@ -425,8 +425,6 @@ const getHRDashboardStats = async (req, res) => {
 
 // @desc    Delete user (Admin only)
 // @route   DELETE /api/users/:id
-// @desc    Delete user (Admin only)
-// @route   DELETE /api/users/:id
 const deleteUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -440,6 +438,74 @@ const deleteUser = async (req, res) => {
     } catch (err) {
         console.error('Delete User Error:', err);
         res.status(500).json({ message: 'Server error deleting user', error: err.message });
+    }
+};
+
+// @desc    Create Department
+// @route   POST /api/users/departments
+const createDepartment = async (req, res) => {
+    try {
+        const { name, managerId, color, efficiency, description } = req.body;
+
+        const departmentExists = await Department.findOne({ 
+            name: new RegExp(`^${name}$`, 'i') 
+        });
+
+        if (departmentExists) {
+            return res.status(400).json({ message: 'Department already exists' });
+        }
+
+        const department = await Department.create({
+            name,
+            managerId: managerId || null,
+            color: color || '#58a6ff',
+            efficiency: efficiency || 0,
+            description: description || ''
+        });
+
+        const populatedDept = await Department.findById(department._id).populate('managerId', 'name');
+        
+        res.status(201).json({
+            id: populatedDept._id,
+            name: populatedDept.name,
+            lead: populatedDept.managerId?.name || 'Not Assigned',
+            count: 0,
+            efficiency: populatedDept.efficiency || 0,
+            color: populatedDept.color || '#58a6ff',
+            employees: []
+        });
+    } catch (err) {
+        console.error('Create Department Error:', err);
+        res.status(500).json({ message: 'Server error creating department', error: err.message });
+    }
+};
+
+// @desc    Delete Department
+// @route   DELETE /api/users/departments/:id
+const deleteDepartment = async (req, res) => {
+    try {
+        const department = await Department.findById(req.params.id);
+
+        if (!department) {
+            return res.status(404).json({ message: 'Department not found' });
+        }
+
+        // Check if any users are assigned to this department
+        const usersInDept = await User.countDocuments({ 
+            department: new RegExp(`^${department.name}$`, 'i') 
+        });
+
+        if (usersInDept > 0) {
+            return res.status(400).json({ 
+                message: `Cannot delete department. ${usersInDept} user(s) are still assigned to it.` 
+            });
+        }
+
+        await department.deleteOne();
+        res.json({ message: 'Department removed successfully' });
+    } catch (err) {
+        console.error('Delete Department Error:', err);
+        res.status(500).json({ message: 'Server error deleting department', error: err.message });
     }
 };
 
@@ -491,6 +557,8 @@ module.exports = {
     getDashboardStats,
     getDepartments,
     updateDepartment,
+    createDepartment,
+    deleteDepartment,
     getManagerDashboardStats,
     getManagerTeam,
     getManagerReports,
