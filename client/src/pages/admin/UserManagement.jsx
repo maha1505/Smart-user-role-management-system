@@ -43,6 +43,7 @@ const UserManagement = () => {
     const [roleStats, setRoleStats] = useState({
         all: 0, admin: 0, manager: 0, employee: 0, hr: 0, accountant: 0
     });
+    const [departments, setDepartments] = useState([]);
     const [formData, setFormData] = useState({
         role: 'employee',
         department: '',
@@ -61,13 +62,15 @@ const UserManagement = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [usersRes, statsRes] = await Promise.all([
+            const [usersRes, statsRes, deptsRes] = await Promise.all([
                 API.get('/users'),
-                API.get('/users/stats')
+                API.get('/users/stats'),
+                API.get('/users/departments')
             ]);
             setUsers(usersRes.data);
             setFilteredUsers(usersRes.data);
             setRoleStats(statsRes.data.stats.roleCounts);
+            setDepartments(deptsRes.data);
         } catch (err) {
             console.error('Failed to fetch user data', err);
         } finally {
@@ -97,7 +100,7 @@ const UserManagement = () => {
         setActionType(type);
         setFormData({
             role: user.role || 'employee',
-            department: user.department || '',
+            department: user.department?.name || user.department || '',
             rejectionReason: ''
         });
         setActionDialog(true);
@@ -302,6 +305,24 @@ const UserManagement = () => {
                             <MenuItem value="employee">Employee</MenuItem>
                             <MenuItem value="hr">HR</MenuItem>
                             <MenuItem value="accountant">Accountant</MenuItem>
+                        </TextField>
+                    </Box>
+                    <Box sx={{ mt: 2 }}>
+                        <TextField
+                            select
+                            fullWidth
+                            label="Department"
+                            size="small"
+                            margin="dense"
+                            value={formData.department}
+                            onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                        >
+                            <MenuItem value=""><em>None</em></MenuItem>
+                            {departments.map((dept) => (
+                                <MenuItem key={dept.id || dept._id} value={dept.name}>
+                                    {dept.name}
+                                </MenuItem>
+                            ))}
                         </TextField>
                     </Box>
                 </DialogContent>
