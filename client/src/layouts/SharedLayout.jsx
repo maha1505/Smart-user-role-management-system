@@ -113,6 +113,11 @@ const SharedLayout = ({ children }) => {
                 { text: 'Payroll', icon: <PayrollIcon fontSize="small" />, path: '/admin/payroll' },
                 { text: 'Audit Logs', icon: <AuditIcon fontSize="small" />, path: '/admin/logs' },
             ]
+        },
+        {
+            label: 'Personal Portal', items: [
+                { text: 'My Leaves', icon: <AuditIcon fontSize="small" />, path: '/admin/my-leaves' },
+            ]
         }
     ];
 

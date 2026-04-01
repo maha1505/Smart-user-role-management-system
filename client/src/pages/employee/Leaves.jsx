@@ -145,7 +145,7 @@ const LeaveHistory = () => {
                     onClick={() => setApplyOpen(true)}
                     sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
                 >
-                    New Request
+                    Apply Leave
                 </Button>
             </Box>
 
