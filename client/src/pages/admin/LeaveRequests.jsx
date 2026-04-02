@@ -16,7 +16,10 @@ import {
 import {
     Visibility as ViewIcon,
     FilterList as FilterIcon,
+    Check as CheckIcon,
+    Close as CloseIcon,
 } from '@mui/icons-material';
+import { Tooltip } from '@mui/material';
 import API from '../../api/api';
 
 const LeaveRequests = () => {
@@ -38,6 +41,19 @@ const LeaveRequests = () => {
     useEffect(() => {
         fetchLeaves();
     }, []);
+
+    const handleAction = async (id, status, stage) => {
+        try {
+            const endpoint = stage === 'manager' 
+                ? `/leaves/${id}/manager-approval` 
+                : `/leaves/${id}/hr-approval`;
+            
+            await API.put(endpoint, { status });
+            fetchLeaves();
+        } catch (err) {
+            console.error('Leave action failed', err);
+        }
+    };
 
     const getStatusStyle = (status) => {
         if (!status) return { bgcolor: 'rgba(210, 153, 34, 0.15)', color: '#e3b341' };
@@ -77,7 +93,7 @@ const LeaveRequests = () => {
                                 <TableCell>Leave Type</TableCell>
                                 <TableCell>Duration</TableCell>
                                 <TableCell>Status</TableCell>
-                                {/* <TableCell sx={{ textAlign: 'right' }}>Actions</TableCell> */}
+                                <TableCell sx={{ textAlign: 'right' }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -124,11 +140,59 @@ const LeaveRequests = () => {
                                             }}
                                         />
                                     </TableCell>
-                                    {/* <TableCell sx={{ textAlign: 'right' }}>
-                                        <IconButton size="small" sx={{ border: '1px solid #30363d', borderRadius: '7px' }}>
-                                            <ViewIcon sx={{ fontSize: '16px' }} />
-                                        </IconButton>
-                                    </TableCell> */}
+                                    <TableCell sx={{ textAlign: 'right' }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                            {/* Stage 1: Manager Approval needed */}
+                                            {(!leave.managerApproval?.status || leave.managerApproval.status === 'pending') && leave.status === 'pending' && (
+                                                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                                                    <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Stage 1:</Typography>
+                                                    <Tooltip title="Approve (Manager Stage)">
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleAction(leave._id, 'approved', 'manager')}
+                                                            sx={{ color: '#3fb950', border: '1px solid rgba(63, 185, 80, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                        >
+                                                            <CheckIcon sx={{ fontSize: '14px' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Reject (Manager Stage)">
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleAction(leave._id, 'rejected', 'manager')}
+                                                            sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                        >
+                                                            <CloseIcon sx={{ fontSize: '14px' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            )}
+
+                                            {/* Stage 2: HR Approval needed */}
+                                            {leave.managerApproval?.status === 'approved' && (!leave.hrApproval?.status || leave.hrApproval.status === 'pending') && leave.status === 'pending' && (
+                                                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                                                    <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Stage 2:</Typography>
+                                                    <Tooltip title="Final Approval (HR Stage)">
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleAction(leave._id, 'approved', 'hr')}
+                                                            sx={{ color: '#58a6ff', border: '1px solid rgba(88, 166, 255, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                        >
+                                                            <CheckIcon sx={{ fontSize: '14px' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Final Reject (HR Stage)">
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleAction(leave._id, 'rejected', 'hr')}
+                                                            sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                        >
+                                                            <CloseIcon sx={{ fontSize: '14px' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    </TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
