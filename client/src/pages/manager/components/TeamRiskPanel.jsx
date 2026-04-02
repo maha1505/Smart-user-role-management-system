@@ -27,6 +27,7 @@ import RiskBreakdownDrawer from '../../shared/RiskBreakdownDrawer';
 const TeamRiskPanel = () => {
     const dispatch = useDispatch();
     const { scores, loading } = useSelector(state => state.risk);
+    const riskHistory = useSelector(state => state.risk.selectedEmployeeHistory);
 
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -119,7 +120,7 @@ const TeamRiskPanel = () => {
                 open={drawerOpen} 
                 onClose={() => setDrawerOpen(false)} 
                 employeeData={selectedEmployee}
-                history={useSelector(state => state.risk.selectedEmployeeHistory)}
+                history={riskHistory}
             />
         </Card>
     );

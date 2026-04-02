@@ -36,6 +36,7 @@ const WorkforceRiskPanel = () => {
     const dispatch = useDispatch();
     const { scores, loading, recalculating, successMessage } = useSelector(state => state.risk);
     const { user } = useSelector(state => state.auth);
+    const riskHistory = useSelector(state => state.risk.selectedEmployeeHistory);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterLevel, setFilterLevel] = useState('all');
@@ -223,7 +224,7 @@ const WorkforceRiskPanel = () => {
                 open={drawerOpen} 
                 onClose={() => setDrawerOpen(false)} 
                 employeeData={selectedEmployee}
-                history={useSelector(state => state.risk.selectedEmployeeHistory)}
+                history={riskHistory}
             />
         </Box>
     );
