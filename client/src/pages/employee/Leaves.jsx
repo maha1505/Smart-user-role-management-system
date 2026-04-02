@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { DataGrid } from '@mui/x-data-grid';
+import { useSelector } from 'react-redux';
 import API from '../../api/api';
 
 const LeaveHistory = () => {
