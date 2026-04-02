@@ -79,7 +79,6 @@ const App = () => {
                 <Route path="leaves" element={<LeaveRequests />} />
                 <Route path="payroll" element={<Payroll />} />
                 <Route path="logs" element={<AuditLogs />} />
-                <Route path="my-leaves" element={<LeaveHistory />} />
               </Routes>
             </SharedLayout>
           </ProtectedRoute>
