@@ -34,7 +34,9 @@ const LeaveApprovals = () => {
             setRequests(data.map(req => ({
                 ...req,
                 id: req._id,
-                employeeName: req.employeeId?.name || 'Unknown'
+                employeeName: req.user?.name || 'Unknown',
+                employeeRole: req.user?.role || 'employee',
+                employeeDept: req.user?.department || ''
             })));
         } catch (err) {
             console.error('Failed to fetch leave requests', err);
@@ -55,9 +57,18 @@ const LeaveApprovals = () => {
 
     const submitApproval = async () => {
         try {
-            const endpoint = user.role === 'manager'
-                ? `/leaves/${selectedReq._id}/manager-approval`
-                : `/leaves/${selectedReq._id}/hr-approval`;
+            // Determine endpoint based on role and stage
+            let endpoint;
+            if (user.role === 'admin') {
+                // Admin can act as either manager (Stage 1) or HR (Stage 2)
+                endpoint = selectedReq.managerApproval?.status === 'pending'
+                    ? `/leaves/${selectedReq._id}/manager-approval`
+                    : `/leaves/${selectedReq._id}/hr-approval`;
+            } else {
+                endpoint = user.role === 'manager'
+                    ? `/leaves/${selectedReq._id}/manager-approval`
+                    : `/leaves/${selectedReq._id}/hr-approval`;
+            }
 
             await API.put(endpoint, { status: actionType, comment });
             setOpenDialog(false);
@@ -93,8 +104,17 @@ const LeaveApprovals = () => {
             headerName: 'Actions',
             width: 150,
             renderCell: (params) => {
-                const canManagerApprove = user.role === 'manager' && params.row.managerApproval?.status === 'pending';
-                const canHRApprove = user.role === 'hr' && params.row.managerApproval?.status === 'approved' && params.row.hrApproval?.status === 'pending';
+                const isRestricted = ['hr', 'manager', 'accountant'].includes(params.row.employeeRole) || params.row.employeeDept === 'Management';
+                const canApproveBase = user.role === 'admin' || !isRestricted;
+
+                const canManagerApprove = (user.role === 'manager' || user.role === 'admin') && 
+                                          params.row.managerApproval?.status === 'pending' && 
+                                          canApproveBase;
+                
+                const canHRApprove = (user.role === 'hr' || user.role === 'admin') && 
+                                     params.row.managerApproval?.status === 'approved' && 
+                                     params.row.hrApproval?.status === 'pending' && 
+                                     canApproveBase;
 
                 if (canManagerApprove || canHRApprove) {
                     return (
@@ -104,6 +124,15 @@ const LeaveApprovals = () => {
                         </Box>
                     );
                 }
+
+                if (isRestricted && user.role !== 'admin') {
+                    return (
+                        <Tooltip title="Requires Admin Approval">
+                            <IconButton disabled><Info color="info" /></IconButton>
+                        </Tooltip>
+                    );
+                }
+
                 return <IconButton disabled><Info /></IconButton>;
             }
         }

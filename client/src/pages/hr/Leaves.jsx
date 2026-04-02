@@ -161,43 +161,58 @@ const HRLeaveApprovals = () => {
                                     </Box>
                                 </TableCell>
                                 <TableCell sx={{ textAlign: 'right' }}>
-                                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            color="success"
-                                            onClick={() => handleAction(req, 'approved')}
-                                            sx={{
-                                                fontSize: '11px',
-                                                fontWeight: 700,
-                                                bgcolor: '#238636',
-                                                '&:hover': { bgcolor: '#2ea043' },
-                                                px: 2,
-                                                borderRadius: '6px',
-                                                textTransform: 'none'
-                                            }}
-                                        >
-                                            Approve
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            variant="outlined"
-                                            color="error"
-                                            onClick={() => handleAction(req, 'rejected')}
-                                            sx={{
-                                                fontSize: '11px',
-                                                fontWeight: 700,
-                                                borderColor: '#30363d',
-                                                color: '#f85149',
-                                                '&:hover': { bgcolor: 'rgba(248, 81, 73, 0.1)', borderColor: '#f85149' },
-                                                px: 1.5,
-                                                borderRadius: '6px',
-                                                textTransform: 'none'
-                                            }}
-                                        >
-                                            Reject
-                                        </Button>
-                                    </Box>
+                                    {(() => {
+                                        const isRestricted = ['hr', 'manager', 'accountant'].includes(req.user?.role) || req.user?.department === 'Management';
+                                        const canApprove = user.role === 'admin' || !isRestricted;
+
+                                        if (!canApprove) {
+                                            return (
+                                                <Typography sx={{ fontSize: '11px', color: '#7d8590', fontStyle: 'italic' }}>
+                                                    Final Approval by Admin Only
+                                                </Typography>
+                                            );
+                                        }
+
+                                        return (
+                                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={() => handleAction(req, 'approved')}
+                                                    sx={{
+                                                        fontSize: '11px',
+                                                        fontWeight: 700,
+                                                        bgcolor: '#238636',
+                                                        '&:hover': { bgcolor: '#2ea043' },
+                                                        px: 2,
+                                                        borderRadius: '6px',
+                                                        textTransform: 'none'
+                                                    }}
+                                                >
+                                                    Approve
+                                                </Button>
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color="error"
+                                                    onClick={() => handleAction(req, 'rejected')}
+                                                    sx={{
+                                                        fontSize: '11px',
+                                                        fontWeight: 700,
+                                                        borderColor: '#30363d',
+                                                        color: '#f85149',
+                                                        '&:hover': { bgcolor: 'rgba(248, 81, 73, 0.1)', borderColor: '#f85149' },
+                                                        px: 1.5,
+                                                        borderRadius: '6px',
+                                                        textTransform: 'none'
+                                                    }}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </Box>
+                                        );
+                                    })()}
                                 </TableCell>
                             </TableRow>
                         ))}

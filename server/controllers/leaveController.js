@@ -22,10 +22,24 @@ const managerApproval = async (req, res) => {
     const leave = await LeaveRequest.findById(req.params.id);
 
     if (leave) {
-        // Security Check: Manager can only approve leaves for their own department
         const employee = await User.findById(leave.employeeId);
-        if (req.user.role === 'manager' && employee.department !== req.user.department) {
-            return res.status(403).json({ message: 'Managers can only manage leave requests for their own department.' });
+        
+        // Strict Approval Rule: HR, Manager, Accountant and Management department 
+        // can only be approved by Admin
+        const isRestrictedRole = ['hr', 'manager', 'accountant'].includes(employee.role);
+        const isRestrictedDept = employee.department === 'Management';
+
+        if (isRestrictedRole || isRestrictedDept) {
+            if (req.user.role !== 'admin') {
+                return res.status(403).json({ 
+                    message: `Only Admin can approve leave requests for ${employee.role}s or Management department employees.` 
+                });
+            }
+        } else {
+            // Security Check for normal employees: Manager can only approve leaves for their own department
+            if (req.user.role === 'manager' && employee.department !== req.user.department) {
+                return res.status(403).json({ message: 'Managers can only manage leave requests for their own department.' });
+            }
         }
 
         leave.managerApproval = {
@@ -49,6 +63,22 @@ const hrApproval = async (req, res) => {
     const leave = await LeaveRequest.findById(req.params.id);
 
     if (leave && leave.managerApproval.status === 'approved') {
+        const employee = await User.findById(leave.employeeId);
+
+        // Strict Approval Rule: HR, Manager, Accountant and Management department 
+        // can only be approved by Admin
+        const isRestrictedRole = ['hr', 'manager', 'accountant'].includes(employee.role);
+        const isRestrictedDept = employee.department === 'Management';
+
+        if (isRestrictedRole || isRestrictedDept) {
+            if (req.user.role !== 'admin') {
+                return res.status(403).json({ 
+                    message: `Only Admin can approve leave requests for ${employee.role}s or Management department employees.` 
+                });
+            }
+        }
+        // Admin and HR can approve normal employees (HR via route protection, Admin via authorize middleware allowing both)
+
         leave.hrApproval = {
             status,
             approvedBy: req.user._id,
@@ -82,7 +112,7 @@ const getAllLeaves = async (req, res) => {
     // HR/Admin see all (unless ?self=true)
 
     const leaves = await LeaveRequest.find(query)
-        .populate('employeeId', 'name username department')
+        .populate('employeeId', 'name username department role')
         .sort({ createdAt: -1 });
 
     const formattedLeaves = leaves.map(leave => ({

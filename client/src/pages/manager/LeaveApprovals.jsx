@@ -116,26 +116,41 @@ const LeaveApprovalsPage = () => {
                                 </TableCell>
                                 <TableCell sx={{ textAlign: 'right' }}>
                                     {!leave.managerApproval?.status || leave.managerApproval.status === 'pending' ? (
-                                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                                            <Tooltip title="Approve">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleAction(leave._id, 'approved')}
-                                                    sx={{ bgcolor: 'rgba(63, 185, 80, 0.1)', color: '#3fb950', border: '1px solid rgba(63, 185, 80, 0.2)', borderRadius: '6px' }}
-                                                >
-                                                    <CheckIcon sx={{ fontSize: '18px' }} />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Reject">
-                                                <IconButton
-                                                    size="small"
-                                                    onClick={() => handleAction(leave._id, 'rejected')}
-                                                    sx={{ bgcolor: 'rgba(248, 81, 73, 0.1)', color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '6px' }}
-                                                >
-                                                    <CloseIcon sx={{ fontSize: '18px' }} />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Box>
+                                        (() => {
+                                            const isRestricted = ['hr', 'manager', 'accountant'].includes(leave.user?.role) || leave.user?.department === 'Management';
+                                            const canApprove = user.role === 'admin' || !isRestricted;
+
+                                            if (!canApprove) {
+                                                return (
+                                                    <Typography sx={{ fontSize: '11px', color: '#7d8590', fontStyle: 'italic' }}>
+                                                        Requires Admin Approval
+                                                    </Typography>
+                                                );
+                                            }
+
+                                            return (
+                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                    <Tooltip title="Approve">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => handleAction(leave._id, 'approved')}
+                                                            sx={{ bgcolor: 'rgba(63, 185, 80, 0.1)', color: '#3fb950', border: '1px solid rgba(63, 185, 80, 0.2)', borderRadius: '6px' }}
+                                                        >
+                                                            <CheckIcon sx={{ fontSize: '18px' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Reject">
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={() => handleAction(leave._id, 'rejected')}
+                                                            sx={{ bgcolor: 'rgba(248, 81, 73, 0.1)', color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '6px' }}
+                                                        >
+                                                            <CloseIcon sx={{ fontSize: '18px' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            );
+                                        })()
                                     ) : (
                                         <Chip
                                             label={leave.managerApproval.status.toUpperCase()}
