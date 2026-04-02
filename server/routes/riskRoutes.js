@@ -11,7 +11,24 @@ const { recalculateAllScores } = require('../services/leaveRiskService');
  */
 router.get('/scores', protect, authorize('admin', 'hr'), async (req, res) => {
     try {
-        const scores = await RiskScore.find()
+        let query = {};
+        
+        // If HR, only show employees in their department
+        if (req.user.role === 'hr') {
+            const department = req.user.department;
+            if (!department) {
+                return res.status(400).json({ message: 'HR must be assigned to a department' });
+            }
+            
+            const deptUsers = await User.find({ 
+                department: new RegExp(`^${department}$`, 'i') 
+            }).select('_id');
+            const deptIds = deptUsers.map(u => u._id);
+            
+            query = { employeeId: { $in: deptIds } };
+        }
+
+        const scores = await RiskScore.find(query)
             .populate('employeeId', 'name email department joiningDate')
             .sort({ score: -1 });
         res.json(scores);
@@ -72,9 +89,10 @@ router.get('/scores/:employeeId', protect, authorize('admin', 'hr'), async (req,
  */
 router.post('/recalculate', protect, authorize('admin', 'hr'), async (req, res) => {
     try {
-        const results = await recalculateAllScores(req.user._id);
+        const department = req.user.role === 'hr' ? req.user.department : null;
+        const results = await recalculateAllScores(req.user._id, department);
         res.status(200).json({ 
-            message: `Recalculation complete for ${results.length} employees.`,
+            message: `Recalculation complete for ${results.length} employees${department ? ` in ${department}` : ''}.`,
             count: results.length 
         });
     } catch (error) {

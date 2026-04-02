@@ -104,10 +104,16 @@ const calculateEmployeeRisk = async (employeeId) => {
 };
 
 /**
- * Calculates risk scores for all active approved employees
+ * Calculates risk scores for employees (optionally filtered by department)
  */
-const recalculateAllScores = async (triggeredBy = null) => {
-    const employees = await User.find({ role: 'employee', registrationStatus: 'approved' });
+const recalculateAllScores = async (triggeredBy = null, department = null) => {
+    let query = { role: 'employee', registrationStatus: 'approved' };
+    
+    if (department) {
+        query.department = new RegExp(`^${department}$`, 'i');
+    }
+
+    const employees = await User.find(query);
     
     const results = [];
     for (const emp of employees) {
