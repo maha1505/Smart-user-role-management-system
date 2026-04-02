@@ -19,6 +19,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import API from '../../api/api';
 
 const LeaveHistory = () => {
+    const { user } = useSelector((state) => state.auth);
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [applyOpen, setApplyOpen] = useState(false);
