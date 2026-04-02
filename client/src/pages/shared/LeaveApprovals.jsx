@@ -89,6 +89,13 @@ const LeaveApprovals = () => {
             headerName: 'Current Status',
             width: 250,
             renderCell: (params) => {
+                const isRestricted = ['hr', 'manager', 'accountant'].includes(params.row.employeeRole) || params.row.employeeDept === 'Management';
+                
+                if (isRestricted) {
+                    const status = params.row.finalStatus || params.row.status || 'pending';
+                    return <Chip label={`Admin Approval: ${status}`} size="small" color={status === 'approved' ? 'success' : 'warning'} variant="outlined" />;
+                }
+
                 const mgrStatus = params.row.managerApproval?.status || 'pending';
                 const hrStatus = params.row.hrApproval?.status || 'pending';
                 return (

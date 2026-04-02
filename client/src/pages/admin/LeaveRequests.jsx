@@ -142,55 +142,89 @@ const LeaveRequests = () => {
                                     </TableCell>
                                     <TableCell sx={{ textAlign: 'right' }}>
                                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                                            {/* Stage 1: Manager Approval needed */}
-                                            {(!leave.managerApproval?.status || leave.managerApproval.status === 'pending') && leave.status === 'pending' && (
-                                                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                                                    <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Stage 1:</Typography>
-                                                    <Tooltip title="Approve (Manager Stage)">
-                                                        <IconButton 
-                                                            size="small" 
-                                                            onClick={() => handleAction(leave._id, 'approved', 'manager')}
-                                                            sx={{ color: '#3fb950', border: '1px solid rgba(63, 185, 80, 0.2)', borderRadius: '4px', p: '2px' }}
-                                                        >
-                                                            <CheckIcon sx={{ fontSize: '14px' }} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Reject (Manager Stage)">
-                                                        <IconButton 
-                                                            size="small" 
-                                                            onClick={() => handleAction(leave._id, 'rejected', 'manager')}
-                                                            sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
-                                                        >
-                                                            <CloseIcon sx={{ fontSize: '14px' }} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            )}
+                                            {/* Restricted Users: Single Stage Admin Approval */}
+                                            {(() => {
+                                                const isRestricted = ['hr', 'manager', 'accountant'].includes(leave.user?.role) || leave.user?.department === 'Management';
+                                                
+                                                if (isRestricted && leave.status === 'pending') {
+                                                    return (
+                                                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                                            <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Admin Approval:</Typography>
+                                                            <Tooltip title="Approve Request (Complete)">
+                                                                <IconButton 
+                                                                    size="small" 
+                                                                    onClick={() => handleAction(leave._id, 'approved', 'manager')}
+                                                                    sx={{ color: '#3fb950', border: '1px solid rgba(63, 185, 80, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                                >
+                                                                    <CheckIcon sx={{ fontSize: '14px' }} />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Reject Request (Complete)">
+                                                                <IconButton 
+                                                                    size="small" 
+                                                                    onClick={() => handleAction(leave._id, 'rejected', 'manager')}
+                                                                    sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                                >
+                                                                    <CloseIcon sx={{ fontSize: '14px' }} />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    );
+                                                }
 
-                                            {/* Stage 2: HR Approval needed */}
-                                            {leave.managerApproval?.status === 'approved' && (!leave.hrApproval?.status || leave.hrApproval.status === 'pending') && leave.status === 'pending' && (
-                                                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                                                    <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Stage 2:</Typography>
-                                                    <Tooltip title="Final Approval (HR Stage)">
-                                                        <IconButton 
-                                                            size="small" 
-                                                            onClick={() => handleAction(leave._id, 'approved', 'hr')}
-                                                            sx={{ color: '#58a6ff', border: '1px solid rgba(88, 166, 255, 0.2)', borderRadius: '4px', p: '2px' }}
-                                                        >
-                                                            <CheckIcon sx={{ fontSize: '14px' }} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Final Reject (HR Stage)">
-                                                        <IconButton 
-                                                            size="small" 
-                                                            onClick={() => handleAction(leave._id, 'rejected', 'hr')}
-                                                            sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
-                                                        >
-                                                            <CloseIcon sx={{ fontSize: '14px' }} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            )}
+                                                // Normal Users: Two Stage Approval
+                                                return (
+                                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                                        {(!leave.managerApproval?.status || leave.managerApproval.status === 'pending') && leave.status === 'pending' && (
+                                                            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                                                                <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Stage 1:</Typography>
+                                                                <Tooltip title="Approve (Manager Stage)">
+                                                                    <IconButton 
+                                                                        size="small" 
+                                                                        onClick={() => handleAction(leave._id, 'approved', 'manager')}
+                                                                        sx={{ color: '#3fb950', border: '1px solid rgba(63, 185, 80, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                                    >
+                                                                        <CheckIcon sx={{ fontSize: '14px' }} />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Reject (Manager Stage)">
+                                                                    <IconButton 
+                                                                        size="small" 
+                                                                        onClick={() => handleAction(leave._id, 'rejected', 'manager')}
+                                                                        sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                                    >
+                                                                        <CloseIcon sx={{ fontSize: '14px' }} />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        )}
+
+                                                        {leave.managerApproval?.status === 'approved' && (!leave.hrApproval?.status || leave.hrApproval.status === 'pending') && leave.status === 'pending' && (
+                                                            <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                                                                <Typography sx={{ fontSize: '10px', color: '#7d8590', mr: 1 }}>Stage 2:</Typography>
+                                                                <Tooltip title="Final Approval (HR Stage)">
+                                                                    <IconButton 
+                                                                        size="small" 
+                                                                        onClick={() => handleAction(leave._id, 'approved', 'hr')}
+                                                                        sx={{ color: '#58a6ff', border: '1px solid rgba(88, 166, 255, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                                    >
+                                                                        <CheckIcon sx={{ fontSize: '14px' }} />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Final Reject (HR Stage)">
+                                                                    <IconButton 
+                                                                        size="small" 
+                                                                        onClick={() => handleAction(leave._id, 'rejected', 'hr')}
+                                                                        sx={{ color: '#f85149', border: '1px solid rgba(248, 81, 73, 0.2)', borderRadius: '4px', p: '2px' }}
+                                                                    >
+                                                                        <CloseIcon sx={{ fontSize: '14px' }} />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        )}
+                                                    </Box>
+                                                );
+                                            })()}
                                         </Box>
                                     </TableCell>
                                 </TableRow>

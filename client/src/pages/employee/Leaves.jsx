@@ -91,6 +91,22 @@ const LeaveHistory = () => {
             headerName: 'Approval Status',
             width: 350,
             renderCell: (params) => {
+                const isRestricted = ['hr', 'manager', 'accountant'].includes(user?.role) || user?.department === 'Management';
+                const currentStatus = params.row.status || 'pending';
+
+                if (isRestricted) {
+                    return (
+                        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                            <Chip label={`Admin Approval: ${currentStatus}`} size="small" sx={{
+                                bgcolor: currentStatus === 'approved' ? 'rgba(63, 185, 80, 0.1)' : currentStatus === 'rejected' ? 'rgba(248, 81, 73, 0.1)' : 'rgba(210, 153, 34, 0.1)',
+                                color: currentStatus === 'approved' ? '#3fb950' : currentStatus === 'rejected' ? '#f85149' : '#d29922',
+                                fontWeight: 700,
+                                fontSize: '10px'
+                            }} />
+                        </Stack>
+                    );
+                }
+
                 const mgr = params.row.managerApproval?.status || 'pending';
                 const hr = params.row.hrApproval?.status || 'pending';
                 return (

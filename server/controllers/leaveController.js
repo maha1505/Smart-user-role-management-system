@@ -42,13 +42,32 @@ const managerApproval = async (req, res) => {
             }
         }
 
-        leave.managerApproval = {
-            status,
-            approvedBy: req.user._id,
-            comment,
-            actionDate: new Date()
-        };
-        if (status === 'rejected') leave.finalStatus = 'rejected';
+        if (isRestrictedRole || isRestrictedDept) {
+            // For restricted roles, Admin approval completes the entire process (Single Stage)
+            leave.managerApproval = {
+                status,
+                approvedBy: req.user._id,
+                comment,
+                actionDate: new Date()
+            };
+            leave.hrApproval = {
+                status,
+                approvedBy: req.user._id,
+                comment,
+                actionDate: new Date()
+            };
+            leave.finalStatus = status;
+        } else {
+            // Normal Stage 1: Manager Approval
+            leave.managerApproval = {
+                status,
+                approvedBy: req.user._id,
+                comment,
+                actionDate: new Date()
+            };
+            if (status === 'rejected') leave.finalStatus = 'rejected';
+        }
+
         const updated = await leave.save();
         res.json(updated);
     } else {
